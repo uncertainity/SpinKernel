@@ -198,8 +198,6 @@ struct infoGrid{
 
 // matrix utilies
 
-
-
 vector<Symbol> sliceReels(vector<vector<Symbol>> &pay_window,int reel_idx, int start_idx){
     vector<Symbol>sliced_reel;
     for (int i = start_idx; i < NO_OF_ROWS;i++){
@@ -790,7 +788,42 @@ void experimentalPayWindow(){
 
 //g++ -std=c++17 main.cpp -o main
 
+struct Trace{
+    static inline int depth = 0;
+    std::string fn;
+
+    Trace(const char* function_name) : fn(function_name){
+        std::cout << std::string(depth * 2, ' ') << "->" << fn << "\n";
+        depth ++;
+    }
+
+    template<typename T>
+    void input(const std:: string& name, const T& value){
+        std::cout << std::string(depth * 2, ' ')
+                  << "input " << name
+                  << ": " << typeid(T).name()
+                  << "\n";
+    }
+
+    template<typename T>
+    void output(const std::string& name, const T& value) {
+        std::cout << std::string(depth * 2, ' ')
+                  << "output " << name
+                  << ": " << typeid(T).name()
+                  << "\n";
+    }
+
+    ~Trace() {
+        depth--;
+        std::cout << std::string(depth * 2, ' ')
+                  << "<- " << fn << "\n";
+    }
+};
+
+
+
+
 int main(){
     experimentalPayWindow();
-    return 1;
+    return 0;
 }
