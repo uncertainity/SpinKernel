@@ -1,0 +1,18 @@
+```text
+Read:
+
+./summary.md
+./AGENTS.md
+./skills/planner.md
+
+Run only the Planner stage.
+
+Generate:
+
+./generation/plan/game_flow.md
+./generation/plan/game_flow.json
+
+Update:
+
+./summary.md
+```

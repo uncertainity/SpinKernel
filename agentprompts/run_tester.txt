@@ -1,0 +1,19 @@
+```text
+Read:
+
+./summary.md
+./AGENTS.md
+./skills/tester.md
+
+Run only the Tester stage.
+
+Generate:
+
+./validation/reports/escalation.md
+./validation/reports/validation_report.md
+./validation/oracle/test_cases.txt
+
+Update:
+
+./summary.md
+```

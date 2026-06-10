@@ -1,0 +1,12 @@
+[2026-06-10 16:24:47] Running validate_inputs.sh
+[OK] Folder found: ./input/gameRule
+[OK] Optional folder found: ./input/mathModel
+[OK] Optional folder found: ./validation/testCases
+[OK] File found: ./AGENTS.md
+[OK] Folder found: ./referrenceLibrary/cpp
+[ERROR] Folder is empty: ./referrenceLibrary/numba
+
+[PASSED] All required inputs are present.
+[2026-06-10 16:24:47] Input validation passed
+[2026-06-10 16:24:47] Running stage: planner
+Not inside a trusted directory and --skip-git-repo-check was not specified.
