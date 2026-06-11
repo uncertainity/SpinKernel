@@ -4,419 +4,227 @@
 
 You are the Coder agent in the SlotCore pipeline.
 
-Your responsibility is to convert the simulator architecture into working C++ code.
+Your responsibility is to implement the C++ baseline from the unified Coder contract.
 
-You are not responsible for interpreting the original game from scratch.
+The Coder does not interpret the original game from scratch.
 
-You are not responsible for inventing missing mechanics.
+The Coder does not invent mechanics.
 
-You are not responsible for changing slot mathematics.
+The Coder does not tune RTP.
 
-You are not responsible for RTP tuning.
+The Coder does not optimize before correctness.
 
-Your job is implementation, compilation, execution, testing, and optimization.
-
-The Coder must treat the Simulator output as the primary implementation contract.
-
----
-
-## Objective
-
-Given:
-
-* Simulator implementation schema
-* Planner game-flow documents
-* Tester validation reports
-* Oracle test cases
-* Optional reference simulator code
-
-produce:
-
-1. A clean baseline implementation.
-2. A tested executable simulator.
-3. A playable terminal demo.
-4. An optimized implementation.
-5. Commands required to compile and run all generated code.
-
-Correctness comes before performance.
-
-Never optimize before the baseline passes validation.
+The Coder treats `coder_contract.md` as the primary implementation contract.
 
 ---
 
 ## Inputs
 
-The Coder may receive:
+Read:
 
 ```text
-./generation/baseline/implementation_schema.json
-./generation/baseline/implementation_schema.md
+./summary.md
+./AGENTS.md
+./skills/coder.md
+
+./generation/baseline/coder_contract.md
 
 ./generation/plan/game_flow.md
 ./generation/plan/game_flow.json
 
-./validation/reports/validation_report.md
-./validation/reports/escalation.md
-
 ./validation/oracle/test_cases.txt
+./validation/reports/escalation.md
+./validation/reports/validation_report.md
 
+./referrenceLibrary/cpp/reflib.cpp
+./referrenceLibrary/cpp/trace.cpp
+```
+
+Optional:
+
+```text
 ./input/gameRule/
 ./input/mathModel/
 ```
 
-Optional inputs:
+Use Planner files only for clarification.
 
-```text
-./reflib/
-./reference/
-```
-
-The implementation schema is authoritative.
-
-If the schema conflicts with the original documents, report the conflict before coding.
-
----
-
-## Non-Goals
-
-The Coder must NOT:
-
-* Invent paylines
-* Invent paytables
-* Invent reel strips
-* Invent symbol behavior
-* Invent feature behavior
-* Modify payout rules
-* Modify RTP assumptions
-* Tune math parameters
-* Ignore failing tests
-* Optimize untested code
-
-If required information is missing, stop and report it.
+If Planner files conflict with `coder_contract.md`, report the conflict in escalation and stop.
 
 ---
 
 ## Required Outputs
 
-The Coder must generate:
+Generate:
 
 ```text
 ./generation/baseline/core.cpp
-./generation/optimized/efficient_core.cpp
-./generation/demo/game.cpp
+./generation/baseline/test_core.cpp
 ./generation/run_commands.txt
-```
-
-Optional but recommended:
-
-```text
-./generation/tests/test_core.cpp
 ./generation/reports/coder_report.md
 ```
 
----
+Readibility, correctness and similarity with ./referrenceLibrary/cpp/reflib.cpp is preferred over optimization.
 
-## Implementation Order
-
-The Coder must work in this order:
-
-```text
-1. Read implementation_schema.json
-2. Read implementation_schema.md
-3. Read validation_report.md
-4. Read test_cases.txt
-5. Implement baseline core.cpp
-6. Compile baseline
-7. Run oracle tests
-8. Fix correctness bugs
-9. Generate playable demo
-10. Generate optimized version
-11. Verify optimized version matches baseline
-12. Write run_commands.txt
-13. Write coder_report.md
-```
-
-Do not skip validation.
-
-Do not generate optimized code before baseline correctness is established.
+Do not generate demo code.
 
 ---
 
-## Baseline Implementation
+## Implementation Requirements
 
-Output:
-
-```text
-./generation/baseline/core.cpp
-```
-
-The baseline implementation should be:
-
-* Clear
-* Readable
-* Deterministic
-* Easy to test
-* Close to the simulator schema
-* Simple rather than clever
-
-The baseline code should preserve the function structure from the simulator schema.
-
-Example function names may include:
+The Coder must implement `core.cpp` directly from:
 
 ```text
-generatePayWindow()
-evaluateBaseGame()
-evaluateLines()
-evaluateWays()
-evaluateScatter()
-triggerFeature()
-runFreeSpins()
-accumulateWins()
-runSpin()
-runSimulation()
+./generation/baseline/coder_contract.md
 ```
 
-Use the names from the simulator schema whenever possible.
+The implementation must include:
+
+* canonical symbols
+* constants
+* reelsets
+* reel sizes
+* paytable
+* probTable
+* data structures
+* all functions listed in `coder_contract.md`
+* exact function names from the contract
+* forced-pay-window test support
+* deterministic RNG support if required
+
+The implementation must preserve the function structure from the contract.
 
 ---
 
-## C++ Requirements
+## Trace Requirement
 
-Use modern C++.
-
-Preferred standard:
+The Coder must incorporate the `Trace` utility from:
 
 ```text
-C++17 or newer
+./referrenceLibrary/cpp/trace.cpp
 ```
 
-The code should avoid unnecessary dependencies.
+Every contract function must instantiate `Trace` at function entry.
 
-Use only standard library unless explicitly instructed otherwise.
-
-The code should define clear structures such as:
+Each function must emit:
 
 ```text
-Symbol
-PayWindow
-SpinResult
-WinResult
-GameState
-SimulationResult
+input <name>: <type> shape:<shape>
+output <name>: <type> shape:<shape>
+Global/Struct <name>: <type> shape:<shape>
 ```
 
-The implementation should be deterministic when a seed is provided.
+The emitted runtime trace must be comparable against the expected trace in:
+
+```text
+./generation/baseline/coder_contract.md
+```
+
+The Coder must not change trace formatting unless required by `trace.cpp`.
 
 ---
 
-## Error Handling
+## Oracle Test Requirement
 
-If information is missing, report it in:
-
-```text
-./validation/reports/escalation.md
-```
-
-and stop implementation.
-
-Examples:
-
-```text
-[ERROR] Cannot implement evaluateLines(): paylines missing.
-[ERROR] Cannot implement generatePayWindow(): reel strips missing.
-[ERROR] Cannot implement evaluateScatter(): scatter payout rules missing.
-```
-
-Do not silently use placeholders.
-
-Do not write TODO-based fake implementations.
-
----
-
-## Oracle Testing
-
-The Coder must use:
+The Coder must read:
 
 ```text
 ./validation/oracle/test_cases.txt
 ```
 
-to verify correctness.
-
-Each oracle case should map to one or more functions.
-
-Example:
+and implement tests in:
 
 ```text
-CASE_001 -> evaluateLines()
-CASE_002 -> evaluateScatter()
-CASE_003 -> triggerFreeSpins()
+./generation/baseline/test_core.cpp
 ```
 
-If oracle tests are not executable, create a small test harness under:
+Tests must verify expected behavior using forced pay windows wherever needed.
+
+The test harness must support:
+
+* forcing a pay window
+* calling individual functions
+* checking expected ways wins
+* checking scatter counts and scatter wins
+* checking feature trigger behavior
+* checking collect/COR behavior
+* checking total win behavior
+* checking trace output shape and call order where possible
+
+If a test case cannot be implemented because required values are missing, append a `[BLOCKER]` to:
 
 ```text
-./generation/tests/test_core.cpp
+./validation/reports/escalation.md
 ```
 
-The test harness should verify:
-
-* Expected windows
-* Expected wins
-* Expected feature triggers
-* Expected state transitions
-* Expected payout totals
+and report it in `coder_report.md`.
 
 ---
 
-## Playable Demo
+## Error Handling
 
-Output:
+If required data is missing, do not guess.
+
+Append to:
 
 ```text
-./generation/demo/game.cpp
+./validation/reports/escalation.md
 ```
 
-The demo must support two modes:
+Use:
 
 ```text
-spin-by-spin mode
-simulation mode
+[WARNING]
+[AMBIGUITY]
+[BLOCKER]
 ```
 
-### Spin-by-Spin Mode
-
-Allows a user to perform one spin at a time and inspect:
-
-* Pay window
-* Winning symbols
-* Line or ways wins
-* Scatter wins
-* Triggered features
-* Total payout
-
-### Simulation Mode
-
-Allows a user to run many spins and report:
-
-* Total bet
-* Total win
-* Estimated RTP
-* Hit rate
-* Feature frequency
-* Basic win distribution summary
-
-The demo should be terminal-based.
-
-No GUI is required.
-
----
-
-## Optimized Implementation
-
-Output:
+Examples:
 
 ```text
-./generation/optimized/efficient_core.cpp
-```
-
-The optimized implementation may improve:
-
-* Runtime speed
-* Memory layout
-* Loop structure
-* Precomputation
-* Data representation
-
-The optimized version must preserve behavior exactly.
-
-It must be tested against the same oracle cases as the baseline.
-
-If optimized output differs from baseline output for identical seeds or oracle cases, the optimized version is invalid.
-
----
-
-## Performance Rules
-
-Optimization must not change mathematics.
-
-Allowed:
-
-```text
-Precomputed lookup tables
-Compact arrays
-Avoiding repeated allocations
-Efficient symbol encoding
-Faster reel/window generation
-```
-
-Not allowed:
-
-```text
-Changing reel probabilities
-Changing payout values
-Changing feature trigger rules
-Changing evaluation order
-Approximating payout logic
-Removing edge cases
+[BLOCKER] PayTable values are missing from coder_contract.md.
+[BLOCKER] BG1_Reels are referenced but exact reel strips are missing.
+[AMBIGUITY] SCAT and SCATTER both appear; using SCAT as canonical alias per contract.
 ```
 
 ---
 
 ## Run Commands
 
-The Coder must write:
+Write exact commands to:
 
 ```text
 ./generation/run_commands.txt
 ```
 
-This file must contain exact commands for:
-
-1. Compiling baseline.
-2. Running baseline tests.
-3. Compiling demo.
-4. Running demo in spin-by-spin mode.
-5. Running demo in simulation mode.
-6. Compiling optimized implementation.
-7. Running optimized tests.
-
-Example:
+Include:
 
 ```text
-g++ -std=c++17 -O0 -g ./generation/baseline/core.cpp -o ./generation/baseline/core
-./generation/baseline/core --test ./validation/oracle/test_cases.txt
-
-g++ -std=c++17 -O2 ./generation/demo/game.cpp -o ./generation/demo/game
-./generation/demo/game --mode spin
-./generation/demo/game --mode simulation --spins 100000
-
-g++ -std=c++17 -O3 ./generation/optimized/efficient_core.cpp -o ./generation/optimized/efficient_core
-./generation/optimized/efficient_core --test ./validation/oracle/test_cases.txt
+g++ -std=c++17 -O0 -g ./generation/baseline/core.cpp ./generation/tests/test_core.cpp -o ./generation/tests/test_core
+./generation/tests/test_core
 ```
 
-Commands must be valid for the generated files.
+Adjust commands if the generated file structure requires it.
 
 ---
 
 ## Coder Report
 
-Recommended output:
+Write:
 
 ```text
 ./generation/reports/coder_report.md
 ```
 
-The report should contain:
+Include:
 
-* Files generated
-* Compilation status
-* Test status
-* Known limitations
-* Missing information
-* Optimization notes
-
-Do not hide failures.
+* files generated
+* compilation status
+* tests implemented
+* tests passed/failed
+* trace instrumentation status
+* missing information
+* blockers or ambiguities
 
 ---
 
@@ -424,27 +232,21 @@ Do not hide failures.
 
 The Coder succeeds when:
 
-* Baseline C++ compiles.
-* Oracle tests pass.
-* Demo compiles.
-* Demo supports spin-by-spin and simulation mode.
-* Optimized code compiles.
-* Optimized code matches baseline behavior.
-* Run commands are correct.
+* `core.cpp` compiles
+* every function in `coder_contract.md` is implemented
+* the Trace utility is integrated
+* runtime traces follow the contract format
+* oracle tests are implemented
+* forced pay-window tests are supported
+* run commands are correct
 
-The Coder fails when:
+The Coder fails if:
 
-* It invents mechanics.
-* It changes math.
-* It ignores validation errors.
-* It writes non-compiling code.
-* It optimizes before correctness.
-* It produces placeholders instead of implementation.
+* it invents missing math
+* it ignores `coder_contract.md`
+* it changes trace format
+* it writes placeholder implementations
+* it skips forced-window testing
+* it silently ignores missing paytables, reels, or probability tables
 
-Correctness is the primary objective.
-
-Performance is secondary.
-
-Clarity is more important than cleverness.
-
-Never change game mathematics to make tests pass.
+Correctness and trace-verifiability are the only goals of this stage.

@@ -1,0 +1,113 @@
+// CORRECTED TRACE REFERENCE - Simulator stage
+// Source: validation/oracle/trace_ref.txt
+// Storage convention: PayWindow is row-major [NO_OF_ROWS x NO_OF_REELS] = [4x6].
+// Canonical symbol names use SCAT; SCATTER is accepted only as a trace alias.
+
+GLOBAL CONSTANTS
+NO_OF_REELS = 6
+NO_OF_ROWS = 4
+STANDARD_SYMBOL_COUNT = 11 // HV1-HV5, LV1-LV6
+PAYTABLE_SYMBOL_COUNT = 12 // standard symbols plus SCAT
+BASE_BET_FIXED_COINS = 20
+
+SYMBOLS
+HV1, HV2, HV3, HV4, HV5, LV1, LV2, LV3, LV4, LV5, LV6, WILD, SCAT, COR, COLLECT
+alias SCATTER -> SCAT
+
+REELSETS
+BG1_Reels -> planner.reel_strips.base_B1, ReelSize shape [6]
+BG2_Reels -> planner.reel_strips.base_B2, ReelSize shape [6]
+FG1_Reels -> planner.reel_strips.free_F1, ReelSize shape [6]
+
+PROBABILITY TABLES
+probTable.ReelsetWeights shape [2]
+probTable.corTrigger shape [2]
+probTable.numCorWeight shape [5]
+probTable.wildMult shape [3]
+probTable.freeGamenumCollect shape [2] // Blitz collect-count alias
+probTable.freeGameCOROccur shape [2] // Blitz COR occurrence alias
+probTable.goodCORTable shape [22]
+probTable.badCORTable shape [22]
+probTable.CORValues shape [22]
+probTable.baseCORValueWeights values shape [22], weights shape [22]
+
+PAYTABLE
+PayTable is symbol-keyed for HV1-HV5, LV1-LV6, SCAT with matrix view [12x7] for count indexes 0..6. Missing counts pay 0.
+
+FUNCTIONS
+generatePayWindow(ReelSet shape [6][variable], ReelSize vector<int> shape [6]) -> PayWindow shape [4x6]
+additionalCOR(PayWindow inout shape [4x6]) -> PayWindow shape [4x6]
+waysWinCalculation(PayWindow shape [4x6]) -> WinBreakdown {ways_win, scatter_win, scatter_count, symbol_hits}
+waysWinCalculationWithMultiplier(PayWindow shape [4x6], wild_multipliers variable) -> WinBreakdown
+resolveCollect(PayWindow shape [4x6], bet_fixed_coins int) -> CollectResult
+FreeGameFeature_1(num_of_free_spins int) -> FeatureResult // Free Spins
+FreeGameFeature_2(num_of_blitz_spins int) -> FeatureResult // Blitz Spins; trace alias retained
+runOneSpin(bet_fixed_coins int, feature_choice enum, rng state) -> SpinResult
+
+TRACE PATH: no free game triggers
+->runOneSpin
+  Global/Struct probTable.ReelsetWeights shape [2]
+  ->generatePayWindow
+    input ReelSet shape [6][variable]
+    input ReelSize shape [6]
+    Global/Struct NO_OF_ROWS shape [1]
+    Global/Struct NO_OF_REELS shape [1]
+    output pay_window shape [4x6]
+  <-generatePayWindow
+  ->additionalCOR
+    input/output pay_window shape [4x6]
+    Global/Struct probTable.corTrigger shape [2]
+    Global/Struct probTable.numCorWeight shape [5]
+  <-additionalCOR
+  ->waysWinCalculation
+    input pay_window shape [4x6]
+    Global/Struct PayTable matrix view [12x7]
+    Global/Struct STANDARD_SYMBOL_COUNT shape [1]
+    output WinBreakdown shape [1]
+  <-waysWinCalculation
+  ->resolveCollect
+    input pay_window shape [4x6]
+    input bet_fixed_coins shape [1]
+    output CollectResult shape [1]
+  <-resolveCollect
+  output SpinResult.total_win shape [1]
+<-runOneSpin
+
+TRACE PATH: FreeGameFeature_1 triggers
+->runOneSpin
+  ...base path through resolveCollect...
+  ->FreeGameFeature_1
+    input num_of_free_spins shape [1]
+    ->generatePayWindow(FG1_Reels, FG1_ReelSize)
+      input ReelSet shape [6][variable]
+      input ReelSize shape [6]
+      output pay_window shape [4x6]
+    <-generatePayWindow
+    ->waysWinCalculationWithMultiplier
+      input pay_window shape [4x6]
+      Global/Struct probTable.wildMult shape [3]
+      output WinBreakdown shape [1]
+    <-waysWinCalculationWithMultiplier
+    output FeatureResult.session_win shape [1]
+  <-FreeGameFeature_1
+  output SpinResult.total_win shape [1]
+<-runOneSpin
+
+TRACE PATH: FreeGameFeature_2 triggers (Blitz Spins)
+->runOneSpin
+  ...base path through resolveCollect...
+  ->FreeGameFeature_2
+    input num_of_blitz_spins shape [1]
+    Global/Struct probTable.freeGamenumCollect shape [2]
+    Global/Struct probTable.freeGameCOROccur shape [2]
+    Global/Struct probTable.goodCORTable shape [22]
+    Global/Struct probTable.badCORTable shape [22]
+    Global/Struct probTable.CORValues shape [22]
+    ->resolveCollect per Blitz spin
+      input blitz_window shape [4x6]
+      output CollectResult shape [1]
+    <-resolveCollect
+    output FeatureResult.session_win shape [1]
+  <-FreeGameFeature_2
+  output SpinResult.total_win shape [1]
+<-runOneSpin

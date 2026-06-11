@@ -52,6 +52,7 @@ The planner may receive one or more files from:
 ```text
 ./input/gameRule/
 ./input/mathModel/
+./validation/reports/escalation.md (If it is available)
 ```
 
 Documents may be:
@@ -73,6 +74,8 @@ Information may be contradictory.
 Information may be incomplete.
 
 The planner must reconcile information whenever possible.
+
+In case ./validation/reports/escalation.md is available, it means the a tester has checked your work. Incorporate the feedbacks with [BLOCKER] labels.
 
 ---
 
@@ -337,7 +340,7 @@ The planner should continue whenever possible.
 ./generation/plan/game_flow.md
 ```
 
-Human-readable description of the game.
+Human-readable description of the game. USE HV1,HV2,...LV1,LV2,. symbols instead of A,B,C,D or the actual symbol names. You can mention the map of HV@->actual symbol name or LV@-> actual symbol name in the output files.
 
 ---
 
@@ -361,6 +364,7 @@ The JSON should contain:
 
 ---
 
+
 ## Success Criteria
 
 The planner succeeds when another agent can fully understand the game without reading the original rule documents.
@@ -376,3 +380,4 @@ The planner fails when:
 Accuracy is more important than completeness.
 
 Never hallucinate game mechanics.
+

@@ -1,0 +1,112 @@
+Read:
+
+./summary.md
+./AGENTS.md
+./skills/coder.md
+
+./generation/baseline/coder_contract.md
+
+./generation/plan/game_flow.md
+./generation/plan/game_flow.json
+
+./validation/oracle/test_cases.txt
+./validation/reports/escalation.md
+./validation/reports/validation_report.md
+
+./referrenceLibrary/cpp/reflib.cpp
+./referrenceLibrary/cpp/trace.cpp
+
+Run only the Coder stage.
+
+Treat:
+
+./generation/baseline/coder_contract.md
+
+as the primary implementation contract.
+
+Do not interpret the original game from scratch.
+Do not invent mechanics.
+Do not tune RTP.
+Do not optimize.
+Do not generate demo code.
+
+Generate:
+
+./generation/baseline/core.cpp
+./generation/tests/test_core.cpp
+./generation/run_commands.txt
+./generation/reports/coder_report.md
+
+Implementation requirements:
+
+1. Implement baseline C++ only.
+2. Implement every function listed in coder_contract.md.
+3. Preserve exact function names from coder_contract.md.
+4. Use Planner files only for clarification.
+5. If Planner files conflict with coder_contract.md, append a [BLOCKER] to escalation.md and stop.
+6. If required paytables, reel strips, probability tables, or expected outputs are missing, append a [BLOCKER] to escalation.md and stop.
+7. Do not write placeholder implementations.
+
+Trace requirements:
+
+1. Incorporate the Trace utility from:
+
+./referrenceLibrary/cpp/trace.cpp
+
+2. Every contract function must instantiate Trace at function entry.
+3. Every contract function must emit inputs, outputs, and Global/Struct dependencies using the Trace methods.
+4. Runtime trace formatting must match trace.cpp.
+5. The emitted trace must be machine-comparable against the expected trace in coder_contract.md.
+
+Testing requirements:
+
+1. Read oracle tests from:
+
+./validation/oracle/test_cases.txt
+
+2. Create:
+
+./generation/tests/test_core.cpp
+
+3. The test harness must support forced pay windows.
+4. Tests must directly call relevant functions where possible.
+5. Verify:
+   - ways wins
+   - scatter counts
+   - scatter wins
+   - collect/COR behavior
+   - feature trigger behavior
+   - total win behavior
+   - trace call order and shapes where possible
+
+Run command requirements:
+
+Write exact compile/run commands to:
+
+./generation/run_commands.txt
+
+Include at minimum:
+
+g++ -std=c++17 -O0 -g ./generation/baseline/core.cpp ./generation/tests/test_core.cpp -o ./generation/tests/test_core
+./generation/tests/test_core
+
+Report requirements:
+
+Write:
+
+./generation/reports/coder_report.md
+
+Include:
+
+- files generated
+- compilation status
+- tests implemented
+- tests passed/failed
+- trace instrumentation status
+- warnings
+- ambiguities
+- blockers
+
+Update:
+
+./summary.md

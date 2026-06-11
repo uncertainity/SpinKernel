@@ -1,0 +1,10 @@
+[2026-06-10 23:32:38] Running validate_inputs.sh
+[OK] Folder found: ./input/gameRule
+[OK] Optional folder found: ./input/mathModel
+[OK] Optional folder found: ./validation/testCases
+[OK] File found: ./AGENTS.md
+[OK] Folder found: ./referrenceLibrary/cpp
+[ERROR] Missing folder: ./referrenceLibrary/numba
+
+[PASSED] All required inputs are present.
+[2026-06-10 23:32:38] Input validation passed

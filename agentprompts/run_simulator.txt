@@ -1,0 +1,78 @@
+Read:
+
+./summary.md
+./AGENTS.md
+./skills/simulator.md
+
+./generation/plan/game_flow.md
+./generation/plan/game_flow.json
+
+./validation/reports/escalation.md
+./validation/reports/validation_report.md
+./validation/oracle/test_cases.txt
+./validation/oracle/trace_ref.txt
+
+./input/gameRule/
+./input/mathModel/
+
+./referrenceLibrary/cpp/trace.cpp
+./referrenceLibrary/cpp/reflib.cpp
+
+Run only the Simulator stage.
+
+Do not write production code.
+Do not write C++ implementation files.
+Do not modify game mathematics.
+Do not invent missing mechanics.
+
+First, verify `trace_ref.txt` against the Planner outputs.
+
+Check that all pseudocode functions, reelsets, reel sizes, paytables, probability tables, symbols, global constants, function inputs, function outputs, shapes, and call paths referenced in `trace_ref.txt` are present in the Planner outputs.
+
+If information is missing, inconsistent, or ambiguous, append findings to:
+
+./validation/reports/escalation.md
+
+Use:
+
+[WARNING] for minor normalization issues.
+[AMBIGUITY] for multiple possible interpretations.
+[BLOCKER] when the simulator schema cannot be generated safely.
+
+If `trace_ref.txt` contains type, shape, or call-order inconsistencies, generate:
+
+./generation/simulator/corrected_trace_ref.txt
+
+Do not silently correct the trace. Every correction must be reported in escalation.md.
+
+Generate:
+
+./generation/baseline/implementation_schema.md
+./generation/baseline/implementation_schema.json
+
+The JSON schema is authoritative.
+The Markdown schema is explanatory.
+
+The implementation schema must include:
+
+- symbols
+- global constants
+- reelsets
+- reel sizes
+- probability tables
+- paytables
+- core data structures
+- state objects
+- function contracts
+- pseudocode
+- call graph
+- execution traces
+- feature architecture
+- event flow
+- oracle test mapping
+
+The generated architecture must allow the Coder agent to implement the simulator without consulting the original game documents.
+
+Update:
+
+./summary.md

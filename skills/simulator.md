@@ -61,12 +61,17 @@ The Simulator may receive:
 ./validation/reports/validation_report.md
 
 ./validation/oracle/test_cases.txt
+./validation/oracle/trace_ref.txt
+
 
 ./input/gameRule/
 ./input/mathModel/
+
+./referrenceLibrary/cpp/trace.exe
+
 ```
 
-The Simulator should treat the Planner output as the primary specification.
+The Simulator should treat the Planner output and the ./validation/oracle/trace_ref.txt as the primary specification.
 
 Validation reports should be used to identify missing or ambiguous mechanics.
 
@@ -111,6 +116,134 @@ The generated architecture should be:
 * Easy to optimize later
 
 The Coder should not need to redesign the architecture.
+The simulator first needs to go through the trace_ref.txt and make sure all the psuedocodes and the probTables, Reels are
+written.
+
+---
+
+## Trace Reference Verification Requirement
+
+Before generating the simulator schema, the Simulator must read:
+
+- `trace_ref.txt`
+- Planner outputs:
+  - `game_flow.md`
+  - `game_flow.json`
+- Reference implementation notes, if available:
+  - `./referenceLibrary/cpp/reflib.cpp`
+
+The Simulator must use `trace_ref.txt` as the required execution contract.
+
+It must verify that the Planner output contains enough information to implement every item referenced in `trace_ref.txt`.
+
+Specifically, the Simulator must check:
+
+1. All global constants are defined:
+   - `NO_OF_SYMBOLS`
+   - `SYMBOL_COUNT`
+   - `NO_OF_REELS`
+   - `NO_OF_ROWS`
+
+2. All symbols are defined:
+   - `HV1` ... `HV5`
+   - `LV1` ... `LV5`
+   - `WILD`
+   - `SCATTER`
+   - `COR`
+   - `COLLECT`
+
+3. All reelsets are specified:
+   - `BG1_Reels`
+   - `BG2_Reels`
+   - `FG1_Reels`
+
+4. All reel sizes are specified:
+   - `BG1_ReelSize`
+   - `BG2_ReelSize`
+   - `FG1_ReelSize`
+
+5. All probability tables referenced in the trace are defined:
+   - `probTable.ReelsetWeights`
+   - `probTable.corTrigger`
+   - `probTable.numCorWeight`
+   - `probTable.wildMult`
+   - `probTable.freeGamenumCollect`
+   - `probTable.freeGameCOROccur`
+   - `probTable.goodCORTable`
+   - `probTable.badCORTable`
+   - `probTable.CORValues`
+
+6. All paytables referenced in the trace are defined:
+   - `PayTable`
+   - expected shape: `[9x6]`
+
+7. All pseudocode functions are represented in the simulator schema:
+   - `generatePayWindow`
+   - `additionalCOR`
+   - `waysWinCalculation`
+   - `waysWinCalculationWithMultiplier`
+   - `FreeGameFeature_1`
+   - `FreeGameFeature_2`
+   - `runOneSpin`
+
+8. The generated simulator call graph must match the three trace paths:
+   - no free game trigger
+   - Free Game Feature 1 trigger
+   - Free Game Feature 2 trigger
+
+9. For every function in the trace, the Simulator must preserve:
+   - input types
+   - output types
+   - shapes
+   - global/probTable dependencies
+   - call order
+
+---
+
+## Escalation Rules
+
+If the Simulator finds missing or inconsistent information, it must append findings to:
+
+`./validation/reports/escalation.md`
+
+Use the following severity labels:
+
+Use when information is present but minor cleanup or normalization is needed.
+
+Example:
+
+```text
+[WARNING] `ReelSize` shape is written as [5], but `NO_OF_REELS = 6`.
+Please confirm whether the reel size vector should have shape [6].
+
+[AMBIGUITY] `Symbol** ReelSet` is referenced in the trace, but Planner does not specify whether reels are stored as
+`Symbol* ReelSet[NO_OF_REELS]` or `vector<vector<Symbol>>`.
+Simulator assumes `Symbol* ReelSet[NO_OF_REELS]`.
+
+[BLOCKER] `BG1_Reels`, `BG2_Reels`, and `FG1_Reels` are referenced in `trace_ref.txt`,
+but exact reel strips are missing from Planner outputs.
+Coder cannot implement `generatePayWindow` without reel strip arrays.
+```
+
+And add the corrected-trace behavior:
+
+
+## Corrected Trace Output
+
+
+If the Simulator detects type, shape, or call-order inconsistencies in `trace_ref.txt`, it must write a corrected trace to:
+
+`./generation/simulator/corrected_trace_ref.txt`
+
+The corrected trace must preserve the original intent but normalize:
+
+- C++ type names
+- array shapes
+- vector shapes
+- function inputs/outputs
+- global/probTable dependencies
+
+The Simulator must not silently modify the trace. Every correction must also be mentioned in `escalation.md` as `[WARNING]` or `[AMBIGUITY]`.
 
 ---
 
@@ -195,18 +328,33 @@ The Simulator must generate a complete call graph.
 Example:
 
 ```text
-runSimulation()
-├── initializeGame()
-├── runSpin()
-│   ├── generatePayWindow()
-│   ├── evaluateBaseGame()
-│   ├── evaluateScatters()
-│   ├── evaluateFeatures()
-│   └── calculatePayout()
-├── updateState()
-└── finalizeResults()
+->runOneSpin
+  ->generatePayWindow
+    input Reelset: Symbol** shape:[1]
+    input ReelSize: std::vector<int, std::allocator<int> > shape:[5]
+    Global/Struct NO_OF_ROWS: int shape:[1]
+    Global/Struct NO_OF_REELS: int shape:[1]
+    output pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[6x5]
+  <- generatePayWindow
+  ->waysWinCalculation
+    input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[6x5]
+    input start_idx: int shape:[1]
+    Global/Struct PayTable_1: int [9][6] shape:[9x6]
+    Global/Struct NO_OF_SYMBOLS: int shape:[1]
+    output win: int shape:[1]
+  <- waysWinCalculation
+  ->holdAndSpin
+    input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[6x5]
+    Global/Struct probTable.p_coin_thresh: float shape:[1]
+    Global/Struct probTable.coinProb: std::vector<float, std::allocator<float> > shape:[4]
+    Global/Struct probTable.coins: std::vector<int, std::allocator<int> > shape:[4]
+    output feature_win: int shape:[1]
+  <- holdAndSpin
+  output total_win: int shape:[1]
+<- runOneSpin
 ```
 
+Inspect ./referrenceLibrary/cpp/trace.cpp to understand how the traces are generated.
 The actual hierarchy must be derived from the game specification.
 
 ---
@@ -416,36 +564,6 @@ Return PayWindow
 
 ---
 
-### Call Tree
-
-The Simulator must generate a complete nested call tree describing which functions invoke other functions.
-
-The call tree should include conditional branches.
-
-Example:
-
-```text
-runSimulation()
-└── runOneSpin()
-    ├── generatePayWindow()
-    ├── evaluateBaseGame()
-    │   ├── evaluateLines()
-    │   ├── evaluateScatters()
-    │   └── evaluateMultipliers()
-    ├── checkFeatureTrigger()
-    │   └── if free_spin_triggered:
-    │       └── runFreeGame()
-    │           ├── generatePayWindow()
-    │           ├── evaluateBaseGame()
-    │           ├── accumulateFreeSpinWins()
-    │           └── checkRetrigger()
-    ├── calculatePayout()
-    └── updateState()
-```
-
-The call tree represents architecture and not runtime execution.
-
----
 
 ### Execution Trace Templates
 

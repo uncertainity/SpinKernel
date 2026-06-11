@@ -328,38 +328,29 @@ No essays.
 
 ---
 
-## Test Oracle Generation
+## Window Test Case Requirement
 
-The Tester is responsible for generating deterministic validation cases.
+Do not generate test cases as flat symbol sequences like:
 
-Output:
+window = [A, A, C, W, D, E]
 
-```text
-./validation/oracle/test_cases.txt
-```
-
-Each test case should describe:
-
-* Input window
-* Trigger conditions
-* Expected outcome
-* Expected payout
-* Expected state transition
+Instead, generate complete visible windows.
 
 Example:
 
-```text
-CASE_001
+FULL_WINDOW:
+row 0 | A | B | C | D | E
+row 1 | F | G | H | I | J
+row 2 | K | A | B | C | D
+row 3 | A | W | A | A | E
+row 4 | B | C | D | E | F
+row 5 | G | H | I | J | K
 
-Window:
-A A A A A
+ACTIVE_WINDOW:
+row 0 | A | W | A | A | E
+row 1 | B | C | D | E | F
+row 2 | G | H | I | J | K
 
-Expected:
-5OAK A
-
-Payout:
-100
-```
 
 Use only information present in the specification.
 
@@ -431,6 +422,39 @@ The output must resemble the core window/feature test-case style shown in:
 ./validation/oracle/test_windows.txt
 ./validation/oracle/feature_windows.txt
 
+### Escalation Severity Rules
+
+Use `[BLOCKER]` only when the missing, contradictory, or invalid information prevents the Simulator or Coder from producing a correct implementation.
+
+A `[BLOCKER]` means:
+
+- Implementation cannot proceed.
+- Multiple materially different implementations are possible.
+- The planner output lacks information required to determine game behavior.
+- The missing information would invalidate oracle tests or core game logic.
+- Human clarification is required before coding can continue.
+
+Do NOT use `[BLOCKER]` for uncertainty, incompleteness, assumptions, formatting issues, documentation quality, optimization concerns, or non-critical ambiguities.
+
+Use `[WARNING]` when:
+
+- Information is incomplete but a reasonable implementation assumption exists.
+- Documentation quality is poor but coding can continue.
+- A planner decision may be risky or suboptimal.
+- Additional validation is recommended.
+
+Use `[AMBIGUOUS]` when:
+
+- Multiple interpretations exist.
+- The planner does not explicitly specify a behavior.
+- The tester cannot determine which interpretation is intended.
+- Coding can continue by selecting a reasonable assumption.
+
+Default to `[WARNING]` or `[AMBIGUOUS]`.
+
+Only emit `[BLOCKER]` when the Simulator or Coder would be unable to generate a correct implementation from the available information.
+
+
 ## Outputs
 
 ### Escalation Report
@@ -438,6 +462,9 @@ The output must resemble the core window/feature test-case style shown in:
 ```text
 ./validation/reports/escalation.md
 ```
+The Tester should be conservative when issuing `[BLOCKER]`.
+
+If there exists a reasonable implementation path that preserves the documented game behavior, emit `[WARNING]` or `[AMBIGUOUS]` instead.
 
 ---
 
@@ -488,3 +515,4 @@ The Tester fails when:
 The Tester is the final specification gate before simulator generation.
 
 When in doubt, reject incomplete specifications rather than assume correctness.
+

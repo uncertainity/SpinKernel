@@ -1,8 +1,10 @@
-[2026-06-10 16:24:26] Running validate_inputs.sh
+[2026-06-11 17:22:30] Running validate_inputs.sh
 [OK] Folder found: ./input/gameRule
 [OK] Optional folder found: ./input/mathModel
 [OK] Optional folder found: ./validation/testCases
 [OK] File found: ./AGENTS.md
 [OK] Folder found: ./referrenceLibrary/cpp
-[ERROR] Folder is empty: ./referrenceLibrary/numba
-./validate_inputs.sh: line 87: err_cpp: unbound variable
+[ERROR] Missing folder: ./referrenceLibrary/numba
+
+[PASSED] All required inputs are present.
+[2026-06-11 17:22:30] Input validation passed

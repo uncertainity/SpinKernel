@@ -1,0 +1,202 @@
+# Vegas Blitz Deterministic Core Oracle Cases
+
+Notation:
+- Windows are 6 reels x 4 rows.
+- Payout expectations are in paytable units unless `xBet` or `total bet` is stated.
+- `COR(10x)` means a Coin symbol carrying a 10x total-bet value.
+- These cases are simulator-core cases only; UI, buttons, sounds, logs, popups, and server forcing are out of scope.
+
+## TC-BASE-001 No Win Base Window
+
+MODE: BASE
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | HV1 | HV2 | HV3 | HV4 | HV5 | LV1
+row 1 | LV2 | LV3 | LV4 | LV5 | LV6 | HV1
+row 2 | HV2 | HV3 | HV4 | HV5 | LV1 | LV2
+row 3 | LV3 | LV4 | LV5 | LV6 | HV1 | HV2
+
+EXPECT:
+- ways_win = 0
+- scatter_win = 0
+- collect_win = 0
+- feature_trigger = none
+
+## TC-BASE-002 Standard 2OAK Ways Win
+
+MODE: BASE
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | HV1 | HV1 | LV1 | LV2 | LV3 | LV4
+row 1 | LV2 | LV3 | LV4 | LV5 | LV6 | HV2
+row 2 | HV3 | HV4 | HV5 | LV1 | LV2 | LV3
+row 3 | LV4 | LV5 | LV6 | HV2 | HV3 | HV4
+
+EXPECT:
+- HV1 count by consecutive reels = 1 x 1, stops on reel 3
+- HV1 kind = 2OAK
+- HV1 paytable = 20
+- ways_win = 20
+- scatter_win = 0
+- collect_win = 0
+- feature_trigger = none
+
+## TC-BASE-003 WILD Substitution Ways Win
+
+MODE: BASE
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | HV1 | WILD | HV1 | LV2 | LV3 | LV4
+row 1 | LV2 | HV1  | LV4 | LV5 | LV6 | HV2
+row 2 | HV3 | HV4  | HV5 | LV1 | LV2 | LV3
+row 3 | LV4 | LV5  | LV6 | HV2 | HV3 | HV4
+
+EXPECT:
+- Evaluate HV1 from reel 1.
+- Matching-or-WILD counts by consecutive reels = 1 x 2 x 1, stops on reel 4.
+- HV1 kind = 3OAK
+- HV1 ways = 2
+- HV1 paytable = 30
+- ways_win = 60
+- WILD does not substitute for SCAT, COR, or COLLECT.
+
+## TC-BASE-004 Base SCAT Anywhere Feature Trigger
+
+MODE: BASE
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | SCAT | HV2 | HV3 | HV4 | HV5 | LV1
+row 1 | LV2  | LV3 | SCAT | LV5 | LV6 | HV1
+row 2 | HV2  | HV3 | HV4 | HV5 | LV1 | SCAT
+row 3 | LV3  | LV4 | LV5 | LV6 | HV1 | HV2
+
+EXPECT:
+- SCAT count anywhere = 3
+- scatter_win = 20
+- feature_selection = shown
+- Free Spins option award = 8
+- Blitz Spins option award = 3
+
+## TC-BASE-005 Single COLLECT Collects Visible COR
+
+MODE: BASE
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | COLLECT | HV2      | HV3 | HV4      | HV5 | LV1
+row 1 | LV2     | COR(2x)  | LV4 | LV5      | LV6 | HV1
+row 2 | HV2     | HV3      | HV4 | COR(10x) | LV1 | LV2
+row 3 | LV3     | LV4      | LV5 | LV6      | HV1 | HV2
+
+EXPECT:
+- COLLECT count = 1
+- collected COR values = 2x + 10x = 12x
+- collect_win = 12 x total bet = 240
+- ways/scatter evaluation remains separate from collect_win
+
+## TC-BASE-006 Two COLLECT Symbols Collect Independently
+
+MODE: BASE
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | COLLECT | HV2     | HV3 | HV4     | HV5 | LV1
+row 1 | LV2     | COR(2x) | LV4 | LV5     | LV6 | HV1
+row 2 | HV2     | HV3     | HV4 | COR(5x) | LV1 | COLLECT
+row 3 | LV3     | LV4     | LV5 | LV6     | HV1 | HV2
+
+EXPECT:
+- COLLECT count = 2
+- each COLLECT independently collects all visible COR values
+- collected COR values per COLLECT = 2x + 5x = 7x
+- collect_win = 2 x 7 x total bet = 280
+
+## TC-FS-001 Free Spins WILD Multiplier Product
+
+MODE: FREE_SPINS
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | HV1 | WILD(2x) | LV2 | WILD(3x) | LV3 | LV4
+row 1 | LV2 | HV2      | LV4 | LV5      | LV6 | HV2
+row 2 | HV3 | HV4      | HV5 | LV1      | LV2 | LV3
+row 3 | LV4 | LV5      | LV6 | HV2      | HV3 | HV4
+
+EXPECT:
+- Evaluate HV1 from reel 1.
+- Matching-or-WILD counts by consecutive reels = 1 x 1, stops on reel 3.
+- HV1 kind = 2OAK
+- base ways win before multiplier = 20
+- visible WILD multiplier product = 2 x 3 = 6
+- free_spins_ways_win = 120
+- WILD multiplier is not applied to SCAT wins.
+
+## TC-FS-002 Free Spins Retrigger With 2 SCAT
+
+MODE: FREE_SPINS
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | SCAT | HV2 | HV3 | HV4 | HV5 | LV1
+row 1 | LV2  | LV3 | LV4 | LV5 | LV6 | HV1
+row 2 | HV2  | HV3 | HV4 | HV5 | LV1 | SCAT
+row 3 | LV3  | LV4 | LV5 | LV6 | HV1 | HV2
+
+EXPECT:
+- SCAT count = 2
+- additional_free_spins = 5
+- scatter_win = 0 because SCAT paytable starts at 3OAK
+
+NOTE:
+- Free Spins SCAT evaluation for 3+ SCAT remains ambiguous between anywhere and left-to-right source wording.
+
+## TC-BLITZ-001 Blitz Collect Guarantee And Collection
+
+MODE: BLITZ_SPINS
+BET_FIXED_COINS: 20
+
+FULL_WINDOW:
+row 0 | COLLECT | COR(1x) | COR(4x) | COR(5x) | COR(10x) | COLLECT
+row 1 | COR(2x) | COR(3x) | COR(1x) | COR(2x) | COR(1x)  | COR(5x)
+row 2 | COR(1x) | COR(2x) | COR(3x) | COR(4x) | COR(5x)  | COR(6x)
+row 3 | COR(2x) | COR(1x) | COR(2x) | COR(1x) | COR(2x)  | COR(1x)
+
+EXPECT:
+- symbols_allowed = COR, jackpot-valued COR, COLLECT only
+- COLLECT count = 2
+- at least one COR present = true
+- collected COR total excluding COLLECT cells = 64x
+- collect_win = 2 x 64 x total bet = 2560
+- retrigger = none
+
+## TC-BUY-001 Buy Bonus Option Mapping
+
+MODE: BUY_BONUS_CONFIG
+
+EXPECT:
+- 4 SCAT option cost = 80x game bet; awards 12 Free Spins or 4 Blitz Spins.
+- 5 SCAT option cost = 95x game bet; awards 20 Free Spins or 6 Blitz Spins.
+- 6 SCAT option cost = 110x game bet; awards 30 Free Spins or 8 Blitz Spins.
+- Buy Bonus availability is disabled in UKGC-facing scenarios and enabled only when jurisdiction/config permits it.
+
+NOTE:
+- QA workbook rows 403-405 say "6 Scatter symbols should land" for all Buy Bonus options; rows 411 and 414-425 support 4/5/6 SCAT by option. Do not silently resolve this in code.
+
+## TC-BASE-007 Additional COR Placement Eligibility
+
+MODE: BASE_ADDITIONAL_COR
+
+PRE_TRIGGER_WINDOW:
+row 0 | COLLECT | WILD | SCAT | HV4 | HV5 | LV1
+row 1 | LV2     | LV3  | LV4  | LV5 | LV6 | HV1
+row 2 | HV2     | HV3  | HV4  | HV5 | LV1 | LV2
+row 3 | LV3     | LV4  | LV5  | LV6 | HV1 | HV2
+
+EXPECT:
+- If additional COR trigger = Yes, added COR positions must exclude existing COLLECT, WILD, and SCAT cells.
+- Added COR count must be selected from documented count weights for 1..5.
+- Added COR values must be selected from documented base COR value weights.

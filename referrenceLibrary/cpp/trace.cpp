@@ -147,10 +147,19 @@ std::string shape_of(const std::vector<std::vector<T>>& v) {
            "]";
 }
 
+template<typename T, size_t N>
+std::string shape_of(const T (&)[N]) {
+    return "[" + std::to_string(N) + "]";
+}
+
+template<typename T, size_t R, size_t C>
+std::string shape_of(const T (&)[R][C]) {
+    return "[" + std::to_string(R) + "x" + std::to_string(C) + "]";
+}
 
 
 struct Trace{
-    static inline int depth = 0;
+    static inline int depth = 0; //Trace::depth
     std::string fn;
 
     Trace(const char* function_name) : fn(function_name){

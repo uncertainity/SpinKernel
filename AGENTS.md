@@ -127,6 +127,7 @@ Planner
 → Tester
 → Simulator
 → Coder
+→ Postcoder
 → Mathematician
 ```
 
@@ -365,10 +366,8 @@ Read:
 
 ```text
 ./generation/baseline/core.cpp
-./generation/optimized/efficient_core.cpp
-./generation/demo/game.cpp
 ./generation/run_commands.txt
-./generation/tests/test_core.cpp
+./generation/baseline/test_core.cpp
 ./generation/reports/coder_report.md
 ```
 
@@ -400,7 +399,101 @@ Update:
 
 ---
 
-## Stage 5: Mathematician
+## Stage 5: Test Augmenter
+
+### Skill File
+
+Read:
+
+```text
+./skills/post_coder_tester.md
+```
+
+### Inputs
+
+```text
+./generation/baseline/implementation_schema.md
+./generation/baseline/implementation_schema.json
+
+./generation/baseline/core.cpp
+./generation/tests/test_core.cpp
+
+./generation/reports/coder_report.md
+
+./validation/reports/validation_report.md
+./validation/reports/escalation.md
+
+./validation/oracle/test_cases.txt
+```
+
+### Outputs
+
+```text
+./validation/reports/post_coder_audit.md
+./validation/oracle/edge_test_cases.txt
+```
+
+Optional:
+
+```text
+./validation/reports/coverage_matrix.md
+```
+
+### Purpose
+
+The Post-Code Tester audits the generated implementation after the Coder stage.
+
+It attempts to identify:
+
+* Missing edge cases
+* Missing test coverage
+* Weak oracle tests
+* Untested state transitions
+* Untested feature paths
+* Schema-code inconsistencies
+* Deterministic test gaps
+
+The Post-Code Tester does not modify code.
+
+It generates audit reports and additional deterministic test cases only.
+
+### Required Checks
+
+The Post-Code Tester must verify:
+
+* Function coverage
+* Call graph coverage
+* State machine coverage
+* Feature coverage
+* Window-level test coverage
+* Oracle test quality
+* Schema-code consistency
+
+It should generate additional edge cases where coverage is weak.
+
+### Do Not
+
+The Post-Code Tester must not:
+
+* Modify C++ source files
+* Rewrite simulator architecture
+* Change game mathematics
+* Invent slot mechanics
+* Generate UI tests
+* Generate frontend tests
+* Generate animation or rendering tests
+* Modify existing oracle tests
+
+### After Completion
+
+Update:
+
+```text
+./summary.md
+```
+----
+
+## Stage 6: Mathematician
 
 ### Skill File
 
@@ -506,12 +599,14 @@ If blocked, write to:
 ./validation/reports/escalation.md
 ```
 
-Use compact diagnostics:
+Use compact diagnostics of three kinds - BLOCKER, WARNING, AMBIGUITY
 
 ```text
 [BLOCKER] Cannot generate simulator schema: reel strips missing.
 [BLOCKER] Cannot implement evaluateLines(): paylines missing.
-[WARNING] Scatter payout rule ambiguous.
+[WARNING] `trace_ref.txt` base `runOneSpin` call path omits Collect resolution after ways/scatter evaluation. Planner and validation reports require Collect resolution before feature trigger handling. Corrected trace inserts `resolveCollect` after `waysWinCalculation`.
+[AMBIGUITY] `trace_ref.txt` and Planner outputs do not resolve the already-recorded Free Spins SCAT evaluation conflict: 
+
 ```
 
 ---

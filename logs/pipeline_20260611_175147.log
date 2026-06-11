@@ -1,8 +1,10 @@
-[2026-06-10 16:19:54] Running validate_inputs.sh
+[2026-06-11 17:51:47] Running validate_inputs.sh
 [OK] Folder found: ./input/gameRule
 [OK] Optional folder found: ./input/mathModel
 [OK] Optional folder found: ./validation/testCases
 [OK] File found: ./AGENTS.md
 [OK] Folder found: ./referrenceLibrary/cpp
-[ERROR] Folder is empty: ./referrenceLibrary/numba
-[FAILED] Required REFERENCE LIBRARY missing. Fix errors before running Codex.
+[ERROR] Missing folder: ./referrenceLibrary/numba
+
+[PASSED] All required inputs are present.
+[2026-06-11 17:51:47] Input validation passed
