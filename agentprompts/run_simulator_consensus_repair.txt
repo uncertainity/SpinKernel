@@ -1,0 +1,135 @@
+## Stage: Simulator Consensus Repair
+
+### Skill File
+
+Read:
+
+```text
+./skills/simulator.md
+```
+
+### Purpose
+
+The Test Augmenter has detected blockers after executing deterministic forced-window edge cases.
+
+Your job is to inspect the Test Augmenter escalation and determine whether the simulator contract or implementation schema needs clarification or repair.
+
+You are not the Coder.
+
+You do not modify production C++ code.
+
+You do not change game mathematics.
+
+You do not invent slot mechanics.
+
+You only update simulator-facing contract/schema documents when the escalation shows that the current architecture is ambiguous, incomplete, or inconsistent.
+
+### Inputs
+
+Read:
+
+```text
+./validation/reports/escalation.md
+./validation/reports/test_augmenter_report.md
+./validation/oracle/edge_cases.txt
+./validation/oracle/edge_results.json
+
+./generation/baseline/code_contract.md
+./generation/baseline/implementation_schema.md
+./generation/baseline/implementation_schema.json
+
+./generation/baseline/core.cpp
+./generation/tests/test_core.cpp
+./generation/reports/coder_report.md
+```
+
+### Required Analysis
+
+For each `[BLOCKER]` from the Test Augmenter, classify it as one of:
+
+```text
+[CONTRACT_AMBIGUITY]
+[SCHEMA_MISSING_DETAIL]
+[CODER_IMPLEMENTATION_BUG]
+[TEST_AUGMENTER_BUG]
+[ORACLE_CONFLICT]
+[NEEDS_HUMAN_REVIEW]
+```
+
+### Allowed Actions
+
+You may update:
+
+```text
+./generation/baseline/code_contract.md
+./generation/baseline/implementation_schema.md
+./generation/baseline/implementation_schema.json
+```
+
+only if the blocker is caused by ambiguity, missing detail, or schema inconsistency. Make sure to update the trace in 
+./generation/baseline/code_contract.md as well if required without fail.
+
+You may update:
+
+```text
+./validation/reports/escalation.md
+```
+
+to clarify ownership of remaining blockers.
+
+### Forbidden Actions
+
+Do not modify:
+
+```text
+./generation/baseline/core.cpp
+./generation/tests/test_core.cpp
+./validation/oracle/test_cases.txt
+./validation/oracle/edge_cases.txt
+```
+
+Do not invent payouts.
+
+Do not change game math to satisfy generated tests.
+
+Do not rewrite implementation behavior unless the contract/schema was genuinely ambiguous.
+
+
+### Output
+
+Write:
+
+```text
+./validation/reports/simulator_consensus_repair_report.md
+```
+
+with:
+
+```text
+# Simulator Consensus Repair Report
+
+## Summary
+
+## Inputs Consumed
+
+## Blocker Classification
+
+## Contract Changes Made
+
+## Schema Changes Made
+
+## Remaining Coder Actions
+
+## Remaining Human Review Items
+
+## Recommended Next Action
+```
+
+### Completion Condition
+
+The stage is complete when every Test Augmenter blocker has been classified and either:
+
+* resolved by contract/schema clarification,
+* assigned to the Coder as an implementation bug,
+* assigned to the Test Augmenter as a generated-test issue,
+* or marked for human review.

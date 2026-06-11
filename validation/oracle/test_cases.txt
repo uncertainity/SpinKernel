@@ -12,12 +12,13 @@ MODE: BASE
 BET_FIXED_COINS: 20
 
 FULL_WINDOW:
-row 0 | HV1 | HV2 | HV3 | HV4 | HV5 | LV1
-row 1 | LV2 | LV3 | LV4 | LV5 | LV6 | HV1
-row 2 | HV2 | HV3 | HV4 | HV5 | LV1 | LV2
-row 3 | LV3 | LV4 | LV5 | LV6 | HV1 | HV2
+row 0 | HV1 | HV3 | HV5 | HV4 | HV5 | LV1
+row 1 | LV2 | LV4 | LV6 | LV5 | LV6 | HV1
+row 2 | HV2 | HV4 | HV1 | HV5 | LV1 | LV2
+row 3 | LV3 | LV5 | LV1 | LV6 | HV1 | HV2
 
 EXPECT:
+- No standard symbol appears on both reel 1 and reel 2, so no left-to-right ways sequence reaches a payable count.
 - ways_win = 0
 - scatter_win = 0
 - collect_win = 0
@@ -50,9 +51,9 @@ BET_FIXED_COINS: 20
 
 FULL_WINDOW:
 row 0 | HV1 | WILD | HV1 | LV2 | LV3 | LV4
-row 1 | LV2 | HV1  | LV4 | LV5 | LV6 | HV2
-row 2 | HV3 | HV4  | HV5 | LV1 | LV2 | LV3
-row 3 | LV4 | LV5  | LV6 | HV2 | HV3 | HV4
+row 1 | LV2 | HV1  | LV6 | LV5 | LV6 | HV2
+row 2 | LV3 | HV4  | HV5 | LV1 | LV2 | LV3
+row 3 | LV4 | LV5  | LV5 | HV2 | HV3 | HV4
 
 EXPECT:
 - Evaluate HV1 from reel 1.
@@ -121,10 +122,10 @@ MODE: FREE_SPINS
 BET_FIXED_COINS: 20
 
 FULL_WINDOW:
-row 0 | HV1 | WILD(2x) | LV2 | WILD(3x) | LV3 | LV4
-row 1 | LV2 | HV2      | LV4 | LV5      | LV6 | HV2
-row 2 | HV3 | HV4      | HV5 | LV1      | LV2 | LV3
-row 3 | LV4 | LV5      | LV6 | HV2      | HV3 | HV4
+row 0 | HV1 | WILD(2x) | LV1 | WILD(3x) | LV3 | LV4
+row 1 | LV2 | HV2      | LV6 | LV5      | LV6 | HV2
+row 2 | LV3 | HV4      | HV5 | LV1      | LV2 | LV3
+row 3 | LV4 | LV5      | LV5 | HV2      | HV3 | HV4
 
 EXPECT:
 - Evaluate HV1 from reel 1.

@@ -1,0 +1,55 @@
+Read:
+
+./summary.md
+./AGENTS.md
+
+./generation/baseline/coder_contract.md
+./validation/oracle/test_cases.txt
+./validation/reports/escalation.md
+./generation/reports/coder_report.md
+
+Run an interactive escalation resolution pass.
+
+You may modify:
+
+./validation/reports/escalation.md
+./validation/oracle/test_cases.txt
+./generation/baseline/coder_contract.md
+./summary.md
+
+Do not modify production C++ code in this pass.
+
+Human resolution instruction:
+
+The current [BLOCKER] entries are oracle/contract conflicts caused by test expectations that only count the narrated win, while coder_contract.md waysWinCalculation evaluates all payable standard-symbol ways created by WILD substitution.
+
+Treat coder_contract.md as authoritative unless the contract contradicts game rules.
+
+Resolve the blockers as follows:
+
+1. For TC-BASE-001:
+   - inspect the forced pay window
+   - determine whether it actually contains payable ways wins under coder_contract.md
+   - if yes, update the oracle expected ways_win
+   - if the test was intended to be no-win, change the forced window to remove payable consecutive ways
+
+2. For TC-BASE-003:
+   - do not force waysWinCalculation to count only the narrated HV1 win
+   - either update expected ways_win to include all valid symbol evaluations
+   - or change the forced window so only the intended HV1/WILD substitution win is possible
+
+3. For TC-FS-001:
+   - preserve coder_contract.md multiplier behavior
+   - either update expected free_spins_ways_win to include all multiplied ways wins
+   - or change the forced window so only the intended multiplied HV1 win is possible
+
+After resolving, rewrite escalation.md so these blockers are removed or moved to a resolved section.
+
+Do not leave stale [BLOCKER] lines for issues that have been resolved.
+
+If any issue cannot be resolved safely, keep the [BLOCKER] line and explain why.
+
+Also make sure the changes are reflected in ./generation/tests/test_core.cpp. However, make sure the ./generation/tests/test_core.cpp 
+still follows the logic of ./generation/baseline/core.cpp.
+
+Update summary.md with the resolution decision.

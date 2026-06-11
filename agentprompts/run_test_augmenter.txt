@@ -1,0 +1,73 @@
+## Stage: Test Augmenter
+
+### Skill File
+
+Read:
+
+```text
+./skills/test_augmenter.md
+```
+
+### Required Inputs
+
+Consume all available inputs specified by the skill file.
+
+### Execution Requirements
+
+Follow the workflow defined in the skill file exactly.
+
+Generate missing deterministic edge cases.
+
+Generate or update the forced-window runner.
+
+Compile and execute the forced-window runner in the sandbox when possible.
+
+Capture execution results into:
+
+```text
+./validation/oracle/edge_results.json
+```
+
+Update:
+
+```text
+./validation/oracle/edge_cases.txt
+```
+
+with observed execution results.
+
+Perform structural audits and invariant audits using execution results.
+
+Do not manually calculate payouts.
+
+Do not manually calculate feature awards.
+
+Do not invent expected values.
+
+All observed values must come from executing `core.cpp`.
+
+### Required Outputs
+
+Ensure the following files exist when finished:
+
+```text
+./validation/oracle/edge_cases.txt
+./validation/oracle/edge_results.json
+./validation/reports/test_augmenter_report.md
+```
+
+If a real blocker is discovered, update:
+
+```text
+./validation/reports/escalation.md
+```
+
+### Completion Condition
+
+The stage is complete when:
+
+* Edge cases have been generated.
+* Forced-window execution has been attempted.
+* Results have been captured.
+* Structural audits have been completed.
+* Required output files have been written.

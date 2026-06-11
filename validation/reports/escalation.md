@@ -4,6 +4,14 @@
 
 None.
 
+## Resolved Coder Oracle Conflicts
+
+[RESOLVED] TC-BASE-001 previously expected `ways_win = 0` while its forced window contained an `HV2` 2OAK payable ways win under `coder_contract.md`. The oracle window was revised so no standard symbol appears on both reel 1 and reel 2; `ways_win = 0` is now consistent with contract `waysWinCalculation`.
+
+[RESOLVED] TC-BASE-003 previously expected only the narrated `HV1` WILD-substitution win while other high-symbol starts on reel 1 also paid through WILD substitution. The oracle window was revised to isolate the intended `HV1` result: counts `1 x 2 x 1`, `HV1` 3OAK pay `30`, `2` ways, `ways_win = 60`.
+
+[RESOLVED] TC-FS-001 previously expected only the narrated multiplied `HV1` win while other high-symbol starts on reel 1 also paid through WILD substitution before multiplier application. The oracle window was revised to isolate the intended `HV1` base ways win `20`; with visible WILD multiplier product `2 x 3 = 6`, `free_spins_ways_win = 120`.
+
 ## Ambiguities
 
 [AMBIGUOUS] Free Spins SCAT evaluation rule conflicts. `Game Rules` says all symbols pay left-to-right except SCAT and the paytable marks SCAT as "pays anywhere"; `Implementation` says Free Spins calculate left-to-right Scatter wins. Simulator can proceed only if this is modeled as an explicit selectable rule or clarified before final validation.
@@ -15,6 +23,8 @@ None.
 [AMBIGUOUS] Buy Bonus Free Spins wild multiplier scope has conflicting wording. General Free Spins rules apply all visible WILD multipliers regardless of participation; Buy Bonus notes mention multiplying by all WILDs "till that reel." Use the planner's all-visible rule only as an explicit assumption.
 
 ## Warnings
+
+[WARNING] Test Augmenter audit found `generation/tests/test_core.cpp` still contains stale pre-resolution assertions for `TC-BASE-001 ways_win`, `TC-BASE-003 ways_win`, and `TC-FS-001 multiplied ways_win`. The forced-window runner generated in this stage compiled and executed successfully, but the older generated Coder harness still fails until refreshed against the revised oracle windows.
 
 [WARNING] Coin denomination and complete bet ladder are not specified in the math/rule source. Core simulator can use xBet/paytable units and the documented 20 fixed coin game cost, but currency-facing payout tests require external configuration.
 
@@ -45,6 +55,3 @@ None.
 [WARNING] `trace_ref.txt` base `runOneSpin` call path omits Collect resolution after ways/scatter evaluation. Planner and validation reports require Collect resolution before feature trigger handling. Corrected trace inserts `resolveCollect` after `waysWinCalculation`.
 
 [AMBIGUITY] `trace_ref.txt` and Planner outputs do not resolve the already-recorded Free Spins SCAT evaluation conflict: anywhere versus left-to-right. Schema carries this as a configurable unresolved rule and does not hard-code one interpretation.
-[BLOCKER] Coder stage oracle conflict: TC-BASE-001 expects ways_win = 0, but its forced window contains left-to-right consecutive standard-symbol matches that pay under coder_contract.md waysWinCalculation. The baseline implementation preserves coder_contract.md and did not alter game mathematics to satisfy this oracle row.
-[BLOCKER] Coder stage oracle conflict: TC-BASE-003 expects ways_win = 60 for the narrated HV1 WILD-substitution win only, but coder_contract.md waysWinCalculation iterates every standard symbol and WILD substitution creates additional payable symbol evaluations in that forced window.
-[BLOCKER] Coder stage oracle conflict: TC-FS-001 expects free_spins_ways_win = 120 from the narrated HV1 win only, but coder_contract.md waysWinCalculationWithMultiplier applies the visible WILD multiplier product after contract ways evaluation across all standard symbols, producing additional multiplied ways wins for that forced window.

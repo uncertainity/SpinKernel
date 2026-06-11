@@ -1,0 +1,476 @@
+# Vegas Blitz Deterministic Edge Cases
+
+Rules:
+- Expected payout and feature values are not hand-authored here.
+- EXPECTED_RESULT is always execution through `generation/tests/run_forced_window.cpp`.
+- OBSERVED_RESULT values must be copied from `validation/oracle/edge_results.json`.
+
+CASE_EDGE_001
+
+CATEGORY:
+BASE_SCATTER_BOUNDARY
+
+PURPOSE:
+Exercise a base-game window with exactly two SCAT symbols, one below the base feature trigger threshold.
+
+FULL_WINDOW:
+[
+  [SCAT, HV2, HV3, HV4, HV5, LV1],
+  [LV2,  LV3, LV4, LV5, LV6, HV1],
+  [HV2,  HV3, HV4, HV5, LV1, SCAT],
+  [LV3,  LV4, LV5, LV6, HV1, HV2]
+]
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=BASE; bet_fixed_coins=20
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "ways_win": 10,
+  "scatter_win": 0,
+  "scatter_count": 2,
+  "free_spin_award": 0,
+  "blitz_spin_award": 0,
+  "window_shape_valid": true,
+  "non_negative_fields": true
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+waysWinCalculation; freeSpinAward; blitzSpinAward
+
+INVARIANTS_TO_CHECK:
+Window shape remains [4x6]; scatter count is non-negative; awards are observed from core; feature threshold behavior is structural only.
+
+NOTES:
+This case does not assert a payout expectation by manual calculation.
+
+CASE_EDGE_002
+
+CATEGORY:
+BASE_SCATTER_BOUNDARY
+
+PURPOSE:
+Exercise a base-game window with four SCAT symbols, one above the minimum base trigger threshold.
+
+FULL_WINDOW:
+[
+  [SCAT, HV2, HV3, HV4, HV5, LV1],
+  [LV2,  SCAT, LV4, LV5, LV6, HV1],
+  [HV2,  HV3, HV4, HV5, LV1, SCAT],
+  [LV3,  LV4, LV5, SCAT, HV1, HV2]
+]
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=BASE; bet_fixed_coins=20
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "ways_win": 10,
+  "scatter_win": 40,
+  "scatter_count": 4,
+  "free_spin_award": 12,
+  "blitz_spin_award": 4,
+  "window_shape_valid": true,
+  "non_negative_fields": true
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+waysWinCalculation; freeSpinAward; blitzSpinAward
+
+INVARIANTS_TO_CHECK:
+Window shape remains [4x6]; scatter count is non-negative; award outputs are observed from core.
+
+NOTES:
+Boundary companion to CASE_EDGE_001.
+
+CASE_EDGE_003
+
+CATEGORY:
+FREE_SPINS_SCATTER_RULE_CONFIG
+
+PURPOSE:
+Run the same Free Spins window under both configured SCAT evaluation rules to expose the unresolved anywhere versus left-to-right ambiguity without choosing a rule.
+
+FULL_WINDOW:
+[
+  [HV1, SCAT, HV3, HV4, HV5, LV1],
+  [LV2, LV3,  LV4, LV5, LV6, HV1],
+  [HV2, HV3,  HV4, HV5, LV1, SCAT],
+  [LV3, LV4,  LV5, SCAT, HV1, HV2]
+]
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=FREE_SPINS; freeSpinsScatterEvaluationRule=ANYWHERE and LEFT_TO_RIGHT in separate executions
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "anywhere": {
+    "ways_win": 0,
+    "scatter_win": 20,
+    "scatter_count": 3
+  },
+  "left_to_right": {
+    "ways_win": 0,
+    "scatter_win": 0,
+    "scatter_count": 0
+  },
+  "window_shape_valid": true,
+  "non_negative_fields": true
+}
+
+AUDIT_STATUS:
+PASS_WITH_RECORDED_AMBIGUITY
+
+FUNCTIONS_UNDER_TEST:
+waysWinCalculationWithMultiplier
+
+INVARIANTS_TO_CHECK:
+Both configured executions complete; no negative wins or scatter counts; ambiguity is reported structurally, not resolved.
+
+NOTES:
+No manual SCAT payout calculation is used.
+
+CASE_EDGE_004
+
+CATEGORY:
+FREE_SPINS_MULTIPLIER_RESET
+
+PURPOSE:
+Verify that a previously forced WILD multiplier does not affect a later Free Spins window after `clearForcedState()`.
+
+FULL_WINDOW:
+[
+  [HV1, HV1, LV1, LV2, LV3, LV4],
+  [LV2, LV3, LV4, LV5, LV6, HV2],
+  [HV3, HV4, HV5, LV1, LV2, LV3],
+  [LV4, LV5, LV6, HV2, HV3, HV4]
+]
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=FREE_SPINS; clear forced state after a prior WILD multiplier case
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "prior_forced": {
+    "ways_win": 190,
+    "scatter_win": 0,
+    "scatter_count": 0
+  },
+  "after_clear": {
+    "ways_win": 20,
+    "scatter_win": 0,
+    "scatter_count": 0
+  },
+  "after_visible_wild_count": 0,
+  "forced_multiplier_state_size": 0,
+  "window_shape_valid": true,
+  "non_negative_fields": true
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+waysWinCalculationWithMultiplier; clearForcedState
+
+INVARIANTS_TO_CHECK:
+No visible WILD cells exist; observed result is produced by core after forced state reset; counters are non-negative.
+
+NOTES:
+This is a state isolation case, not a payout oracle.
+
+CASE_EDGE_005
+
+CATEGORY:
+COLLECT_REEL_RESTRICTION
+
+PURPOSE:
+Exercise COLLECT symbols placed only on middle reels to confirm observed collection behavior comes from `resolveCollect`.
+
+FULL_WINDOW:
+[
+  [HV1, COLLECT, HV3, HV4, HV5, LV1],
+  [LV2, COR,     LV4, LV5, LV6, HV1],
+  [HV2, HV3,     HV4, COR, LV1, LV2],
+  [LV3, LV4,     LV5, LV6, HV1, HV2]
+]
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=BASE; bet_fixed_coins=20; forced COR values supplied by runner
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "collect_count": 0,
+  "cor_value_x_bet_sum": 12,
+  "collect_win": 0,
+  "window_shape_valid": true,
+  "non_negative_fields": true
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+resolveCollect
+
+INVARIANTS_TO_CHECK:
+Window shape remains [4x6]; collect_count and collect_win are non-negative; result is observed from core.
+
+NOTES:
+The runner does not independently calculate collect payout.
+
+CASE_EDGE_006
+
+CATEGORY:
+ADDITIONAL_COR_NO_ELIGIBLE_CELLS
+
+PURPOSE:
+Force additional COR triggering against a window containing only COLLECT, WILD, and SCAT cells.
+
+FULL_WINDOW:
+[
+  [COLLECT, WILD, SCAT, WILD, SCAT, COLLECT],
+  [SCAT,    WILD, SCAT, WILD, SCAT, WILD],
+  [WILD,    SCAT, WILD, SCAT, WILD, SCAT],
+  [COLLECT, WILD, SCAT, WILD, SCAT, COLLECT]
+]
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=BASE_ADDITIONAL_COR; forced additional COR trigger=Yes; forced target count=max table index
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "input_cor_count": 0,
+  "output_cor_count": 0,
+  "forced_cor_value_count": 0,
+  "window_shape_valid": true,
+  "output_window": [
+    ["COLLECT", "WILD", "SCAT", "WILD", "SCAT", "COLLECT"],
+    ["SCAT", "WILD", "SCAT", "WILD", "SCAT", "WILD"],
+    ["WILD", "SCAT", "WILD", "SCAT", "WILD", "SCAT"],
+    ["COLLECT", "WILD", "SCAT", "WILD", "SCAT", "COLLECT"]
+  ]
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+additionalCOR
+
+INVARIANTS_TO_CHECK:
+Execution completes; window shape remains [4x6]; protected symbols remain protected; no COR values are invented by the report.
+
+NOTES:
+This tests an edge path where eligible placement cells are empty.
+
+CASE_EDGE_007
+
+CATEGORY:
+GENERATE_PAY_WINDOW_FORCED_STOP_WRAP
+
+PURPOSE:
+Exercise negative and over-length forced stops through `generatePayWindow`.
+
+FULL_WINDOW:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=BASE_WINDOW_GENERATION; reelset=BG2; forced stops=[-1, 25, 26, 27, 54, -28]
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "window_shape_valid": true,
+  "generated_window": [
+    ["LV5", "HV2", "LV1", "HV2", "HV1", "LV5"],
+    ["HV1", "LV3", "LV2", "LV3", "LV1", "HV2"],
+    ["LV1", "LV2", "LV4", "LV2", "LV2", "LV3"],
+    ["LV2", "LV2", "LV1", "LV2", "LV4", "LV2"]
+  ]
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+generatePayWindow
+
+INVARIANTS_TO_CHECK:
+Generated window shape is [4x6]; forced stop wrapping executes without crash.
+
+NOTES:
+The generated window is observed from core, not pre-authored.
+
+CASE_EDGE_008
+
+CATEGORY:
+RUN_ONE_SPIN_NO_FEATURE_FORCED_PATH
+
+PURPOSE:
+Run the full base-game call path with deterministic reelset, stops, and no additional COR trigger.
+
+FULL_WINDOW:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=BASE; bet_fixed_coins=20; feature_choice=NONE; forced reelset=BG2; forced additional COR trigger=No
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "base_win": 240,
+  "scatter_win": 0,
+  "collect_win": 0,
+  "feature_win": 0,
+  "total_win": 240,
+  "scatter_count": 0,
+  "total_equals_components": true,
+  "non_negative_fields": true
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+runOneSpin; generatePayWindow; additionalCOR; waysWinCalculation; resolveCollect
+
+INVARIANTS_TO_CHECK:
+Full call path completes; component wins and total win are non-negative; total win equals the sum of observed component fields.
+
+NOTES:
+No feature payout expectation is hand-authored.
+
+CASE_EDGE_009
+
+CATEGORY:
+FREE_GAME_FEATURE_SMOKE
+
+PURPOSE:
+Run one natural Free Spins feature spin with forced stops to cover feature session state fields.
+
+FULL_WINDOW:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=FREE_SPINS_FEATURE; num_of_free_spins=1; forced FG1 stops=[0, 0, 0, 0, 0, 0]
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "session_win": 0,
+  "spins_played": 1,
+  "retrigger_count": 0,
+  "non_negative_fields": true
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+FreeGameFeature_1; generatePayWindow; waysWinCalculationWithMultiplier
+
+INVARIANTS_TO_CHECK:
+Feature result fields are non-negative; spins_played is observed from core; no manual award calculation.
+
+NOTES:
+This is a structural feature execution case.
+
+CASE_EDGE_010
+
+CATEGORY:
+BLITZ_FEATURE_SMOKE
+
+PURPOSE:
+Run one Blitz Spins feature spin with forced weighted-table indexes to cover Collect/COR feature state fields.
+
+FULL_WINDOW:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+ACTIVE_WINDOW:
+SAME_AS_FULL_WINDOW
+
+INITIAL_STATE:
+mode=BLITZ_SPINS_FEATURE; num_of_blitz_spins=1; forced collect count and COR value indexes supplied by runner
+
+EXPECTED_RESULT:
+EXECUTE_WITH_FORCED_WINDOW_RUNNER
+
+OBSERVED_RESULT:
+{
+  "session_win": 580,
+  "spins_played": 1,
+  "retrigger_count": 0,
+  "remaining_forced_weighted_indexes": 0,
+  "observed_cor_value_count": 22,
+  "non_negative_fields": true
+}
+
+AUDIT_STATUS:
+PASS
+
+FUNCTIONS_UNDER_TEST:
+FreeGameFeature_2; resolveCollect
+
+INVARIANTS_TO_CHECK:
+Feature result fields are non-negative; one spin executes; output comes from core.
+
+NOTES:
+The runner observes feature results without calculating Blitz awards.

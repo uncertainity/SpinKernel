@@ -89,33 +89,6 @@ tester(){
     return 0
 }
 
-###############################################################################
-# Planner
-###############################################################################
-
-
-
-# run_codex \
-#     "planner" \
-#     "./agentprompts/run_planner.txt"
-
-# check_file "./generation/plan/game_flow.md"
-# check_file "./generation/plan/game_flow.json"
-
-###############################################################################
-# Tester
-###############################################################################
-
-# run_codex \
-#     "tester" \
-#     "./agentprompts/run_tester.txt"
-
-# check_file "./validation/reports/validation_report.md"
-# check_file "./validation/reports/escalation.md"
-# check_file "./validation/oracle/test_cases.txt"
-
-###############################################################################
-
 planner_tester_loop(){
     MAX_RETRIES=3
     attempt=1
@@ -146,13 +119,17 @@ simulator(){
     if grep -q "\[BLOCKER\]" "${REPORTS_FOLDER}/escalation.md"; then
         echo "[BLOCKER] found in escalation.md. Human Verification is further required."
     fi
-    return 0
 }
 
 simulator_human_gate(){
-     run_codex \
+    simulator
+    read -rp "simulator has finished. Waiting for human verification. Update/Check ./agentprompts/run_sim_human_gate.txt and
+press Enter to proceed to the next stage.
+"
+    run_codex \
     "simulator_human_gate" \
     "./agentprompts/run_sim_human_gate.txt"
+    echo "Simulator-Human Gate has been completed."
 
 }
 
@@ -162,11 +139,154 @@ coder(){
     "./agentprompts/run_coder.txt"
 }
 
-coder
-# simulator_human_gate()
-log "coder is complete."
+interactive_pass() {
+    while grep -q "\[BLOCKER\]" "${REPORTS_FOLDER}/escalation.md"; do
 
-#log "Simulator_Human_Gate completed."
-# log "Simulator completed. Waiting for Human verification"
+        run_codex \
+            "interactive pass" \
+            "./agentprompts/interactive_pass.txt"
+
+        grep -n "\[BLOCKER\]" "${REPORTS_FOLDER}/escalation.md"
+
+        if grep -q "\[BLOCKER\]" "${REPORTS_FOLDER}/escalation.md"; then
+            read -rp "
+[BLOCKER] still exists.
+Edit escalation.md or interactive_pass.txt.
+Press Enter when ready...
+"
+        fi
+    done
+    echo "All blockers are removed."
+}
+
+test_augmenter(){
+    run_codex \
+    "test_augmenter" \
+    "./agentprompts/run_test_augmenter.txt"
+    if grep -q "\[BLOCKER\]" "${REPORTS_FOLDER}/escalation.md"; then
+        echo "[BLOCKER] found in escalation.md."
+    fi
+}
+
+consensus_loop() {
+    local max_attempts=5
+    local attempt=1
+
+    while (( attempt <= max_attempts )); do
+        echo "Consensus attempt ${attempt}/${max_attempts}"
+
+        test_augmenter
+
+        if ! grep -q "\[BLOCKER\]" "${REPORTS_FOLDER}/escalation.md"; then
+            echo "Consensus loop passed."
+            log "No of attempts in Concensus Loop = ${attempt}"
+            return 0
+        fi
+
+        echo "[BLOCKER] found after test_augmenter."
+        echo "Running simulator to resolve contract/schema issue."
+
+        run_codex \
+            "simulator consensus repair" \
+            "./agentprompts/run_simulator_consensus_repair.txt"
+
+        run_codex \
+            "coder consensus repair" \
+            "./agentprompts/run_coder.txt"
+
+        ((attempt++))
+    done
+    echo "Consensus loop failed after ${max_attempts} attempts."
+    echo "Starting interactive pass."
+    interactive_pass
+}
 
 
+
+usage() {
+    cat <<EOF
+Usage: $0 <command>
+
+Commands:
+  full                Run full SlotCore pipeline
+  planner             Run planner only
+  tester              Run tester only
+  planner-tester      Run planner <-> tester loop
+  simulator           Run simulator only
+  simulator-gate      Run simulator + human gate
+  coder               Run coder only
+  interactive-pass    Run human interactive blocker pass
+  test-augmenter      Run test augmenter only
+  consensus           Run simulator -> coder -> test_augmenter consensus loop
+EOF
+}
+
+main_pipeline() {
+    planner_tester_loop
+
+    simulator_human_gate
+
+    coder
+
+    if grep -q "\[BLOCKER\]" "${REPORTS_FOLDER}/escalation.md"; then
+        interactive_pass
+    fi
+
+    consensus_loop
+
+    log "Full SlotCore pipeline completed successfully."
+}
+
+cmd="${1:-}"
+
+case "$cmd" in
+    full)
+        main_pipeline
+        ;;
+
+    planner)
+        planner
+        ;;
+
+    tester)
+        tester
+        ;;
+
+    planner-tester)
+        planner_tester_loop
+        ;;
+
+    simulator)
+        simulator
+        ;;
+
+    simulator-gate)
+        simulator_human_gate
+        ;;
+
+    coder)
+        coder
+        ;;
+
+    interactive-pass)
+        interactive_pass
+        ;;
+
+    test-augmenter)
+        test_augmenter
+        ;;
+
+    consensus)
+        consensus_loop
+        ;;
+
+    ""|-h|--help|help)
+        usage
+        ;;
+
+    *)
+        echo "Unknown command: $cmd"
+        usage
+        exit 1
+        ;;
+esac

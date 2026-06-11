@@ -79,6 +79,8 @@ Testing requirements:
    - total win behavior
    - trace call order and shapes where possible
 
+6. Also read ./validation/reports/simulator_consensus_repair_report.md if it exists, and implement any remaining Coder actions listed there.
+
 Run command requirements:
 
 Write exact compile/run commands to:

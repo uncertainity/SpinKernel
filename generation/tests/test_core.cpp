@@ -34,14 +34,16 @@ static PayWindow window(std::initializer_list<std::initializer_list<Symbol>> row
 static void testNoWinBaseWindow() {
     clearForcedState();
     PayWindow w = window({
-        {HV1, HV2, HV3, HV4, HV5, LV1},
-        {LV2, LV3, LV4, LV5, LV6, HV1},
-        {HV2, HV3, HV4, HV5, LV1, LV2},
-        {LV3, LV4, LV5, LV6, HV1, HV2},
+        {HV1, HV3, HV5, HV4, HV5, LV1},
+        {LV2, LV4, LV6, LV5, LV6, HV1},
+        {HV2, HV4, HV1, HV5, LV1, LV2},
+        {LV3, LV5, LV1, LV6, HV1, HV2},
     });
     CoutCapture cap;
     WinBreakdown b = waysWinCalculation(w);
     CollectResult c = resolveCollect(w, BASE_BET_FIXED_COINS);
+    require(b.symbol_hits[HV1] == 1, "TC-BASE-001 HV1 stops before reel 2");
+    require(b.symbol_hits[LV2] == 1, "TC-BASE-001 LV2 stops before reel 2");
     require(b.ways_win == 0, "TC-BASE-001 ways_win");
     require(b.scatter_win == 0, "TC-BASE-001 scatter_win");
     require(c.collect_win == 0, "TC-BASE-001 collect_win");
@@ -65,9 +67,9 @@ static void testWildSubstitutionWaysWin() {
     clearForcedState();
     PayWindow w = window({
         {HV1, WILD, HV1, LV2, LV3, LV4},
-        {LV2, HV1,  LV4, LV5, LV6, HV2},
-        {HV3, HV4,  HV5, LV1, LV2, LV3},
-        {LV4, LV5,  LV6, HV2, HV3, HV4},
+        {LV2, HV1,  LV6, LV5, LV6, HV2},
+        {LV3, HV4,  HV5, LV1, LV2, LV3},
+        {LV4, LV5,  LV5, HV2, HV3, HV4},
     });
     CoutCapture cap;
     WinBreakdown b = waysWinCalculation(w);
@@ -127,10 +129,10 @@ static void testTwoCollects() {
 static void testFreeSpinsWildMultiplierProduct() {
     clearForcedState();
     PayWindow w = window({
-        {HV1, WILD, LV2, WILD, LV3, LV4},
-        {LV2, HV2,  LV4, LV5,  LV6, HV2},
-        {HV3, HV4,  HV5, LV1,  LV2, LV3},
-        {LV4, LV5,  LV6, HV2,  HV3, HV4},
+        {HV1, WILD, LV1, WILD, LV3, LV4},
+        {LV2, HV2,  LV6, LV5,  LV6, HV2},
+        {LV3, HV4,  HV5, LV1,  LV2, LV3},
+        {LV4, LV5,  LV5, HV2,  HV3, HV4},
     });
     setForcedWildMultiplier(0, 1, 2);
     setForcedWildMultiplier(0, 3, 3);

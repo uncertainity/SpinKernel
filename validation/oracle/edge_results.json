@@ -1,0 +1,74 @@
+{
+  "cases": [
+    {
+      "case_id": "CASE_EDGE_001",
+      "category": "BASE_SCATTER_BOUNDARY",
+      "status": "EXECUTED",
+      "observed_result": {"ways_win":10,"scatter_win":0,"scatter_count":2,"free_spin_award":0,"blitz_spin_award":0,"window_shape_valid":true,"non_negative_fields":true},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_002",
+      "category": "BASE_SCATTER_BOUNDARY",
+      "status": "EXECUTED",
+      "observed_result": {"ways_win":10,"scatter_win":40,"scatter_count":4,"free_spin_award":12,"blitz_spin_award":4,"window_shape_valid":true,"non_negative_fields":true},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_003",
+      "category": "FREE_SPINS_SCATTER_RULE_CONFIG",
+      "status": "EXECUTED",
+      "observed_result": {"anywhere":{"ways_win":0,"scatter_win":20,"scatter_count":3},"left_to_right":{"ways_win":0,"scatter_win":0,"scatter_count":0},"window_shape_valid":true,"non_negative_fields":true},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_004",
+      "category": "FREE_SPINS_MULTIPLIER_RESET",
+      "status": "EXECUTED",
+      "observed_result": {"prior_forced":{"ways_win":190,"scatter_win":0,"scatter_count":0},"after_clear":{"ways_win":20,"scatter_win":0,"scatter_count":0},"after_visible_wild_count":0,"forced_multiplier_state_size":0,"window_shape_valid":true,"non_negative_fields":true},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_005",
+      "category": "COLLECT_REEL_RESTRICTION",
+      "status": "EXECUTED",
+      "observed_result": {"collect_count":0,"cor_value_x_bet_sum":12,"collect_win":0,"window_shape_valid":true,"non_negative_fields":true},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_006",
+      "category": "ADDITIONAL_COR_NO_ELIGIBLE_CELLS",
+      "status": "EXECUTED",
+      "observed_result": {"input_cor_count":0,"output_cor_count":0,"forced_cor_value_count":0,"window_shape_valid":true,"output_window":[["COLLECT","WILD","SCAT","WILD","SCAT","COLLECT"],["SCAT","WILD","SCAT","WILD","SCAT","WILD"],["WILD","SCAT","WILD","SCAT","WILD","SCAT"],["COLLECT","WILD","SCAT","WILD","SCAT","COLLECT"]]},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_007",
+      "category": "GENERATE_PAY_WINDOW_FORCED_STOP_WRAP",
+      "status": "EXECUTED",
+      "observed_result": {"window_shape_valid":true,"generated_window":[["LV5","HV2","LV1","HV2","HV1","LV5"],["HV1","LV3","LV2","LV3","LV1","HV2"],["LV1","LV2","LV4","LV2","LV2","LV3"],["LV2","LV2","LV1","LV2","LV4","LV2"]]},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_008",
+      "category": "RUN_ONE_SPIN_NO_FEATURE_FORCED_PATH",
+      "status": "EXECUTED",
+      "observed_result": {"base_win":240,"scatter_win":0,"collect_win":0,"feature_win":0,"total_win":240,"scatter_count":0,"total_equals_components":true,"non_negative_fields":true},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_009",
+      "category": "FREE_GAME_FEATURE_SMOKE",
+      "status": "EXECUTED",
+      "observed_result": {"session_win":0,"spins_played":1,"retrigger_count":0,"non_negative_fields":true},
+      "errors": []
+    },
+    {
+      "case_id": "CASE_EDGE_010",
+      "category": "BLITZ_FEATURE_SMOKE",
+      "status": "EXECUTED",
+      "observed_result": {"session_win":580,"spins_played":1,"retrigger_count":0,"remaining_forced_weighted_indexes":0,"observed_cor_value_count":22,"non_negative_fields":true},
+      "errors": []
+    }
+  ]
+}
