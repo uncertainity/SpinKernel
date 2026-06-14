@@ -201,6 +201,12 @@ consensus_loop() {
     interactive_pass
 }
 
+generate_stack_trace(){
+    run_codex \
+            "generate stack trace" \
+            "./agentprompts/run_generate_stack_traces.txt"
+    check_file "${GENERATION}/tests/stack_traces.txt"
+}
 
 
 usage() {
@@ -231,8 +237,10 @@ main_pipeline() {
     if grep -q "\[BLOCKER\]" "${REPORTS_FOLDER}/escalation.md"; then
         interactive_pass
     fi
-
+    
     consensus_loop
+    generate_stack_trace
+
 
     log "Full SlotCore pipeline completed successfully."
 }
@@ -278,6 +286,10 @@ case "$cmd" in
 
     consensus)
         consensus_loop
+        ;;
+
+    generate-stack-trace)
+        generate_stack_trace
         ;;
 
     ""|-h|--help|help)

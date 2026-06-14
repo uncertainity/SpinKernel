@@ -1,0 +1,18 @@
+Input (read)
+    ./baseline/coder_contract.md
+    ./baseline/tests/test_core.cpp
+    ./baseline/tests/forced_window.cpp
+    
+Task 
+    Understand the Machine Verifiable Stack Trace Contract in coder_contract.md.
+    Modify the test_core.cpp and the forced_window.cpp such that the traces are printed and saved in 
+    .generation/tests/stack_traces.txt
+    Mention the changes in summary.md
+
+Output (write)
+    ./baseline/tests/stack_traces.txt
+
+Rules
+    DO NOT MODIFY THE CORE LOGIC OF ./baseline/tests/test_core.cpp and ./baseline/tests/forced_window.cpp.
+    DO NOT CHANGE OR MORDIFY ./baseline/coder_contract.md
+

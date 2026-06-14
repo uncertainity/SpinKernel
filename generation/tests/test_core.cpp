@@ -1,4 +1,5 @@
 #include <cassert>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <sstream>
@@ -11,11 +12,33 @@ struct CoutCapture {
     std::streambuf* old = nullptr;
     std::ostringstream ss;
     CoutCapture() : old(std::cout.rdbuf(ss.rdbuf())) {}
-    ~CoutCapture() { std::cout.rdbuf(old); }
+    ~CoutCapture() { restore(); }
+    void restore() {
+        if (old != nullptr) {
+            std::cout.rdbuf(old);
+            old = nullptr;
+        }
+    }
     std::string str() const { return ss.str(); }
 };
 
 static int g_failures = 0;
+static const char* STACK_TRACE_PATH = "generation/tests/stack_traces.txt";
+
+static void emitCapturedTrace(const std::string& label, CoutCapture& cap) {
+    const std::string trace = cap.str();
+    cap.restore();
+    if (trace.empty()) return;
+
+    std::ostringstream section;
+    section << "===== " << label << " =====\n" << trace;
+    if (!trace.empty() && trace.back() != '\n') section << "\n";
+    section << "\n";
+
+    std::cerr << section.str();
+    std::ofstream out(STACK_TRACE_PATH, std::ios::app);
+    out << section.str();
+}
 
 static void require(bool condition, const std::string& message) {
     if (!condition) {
@@ -42,6 +65,7 @@ static void testNoWinBaseWindow() {
     CoutCapture cap;
     WinBreakdown b = waysWinCalculation(w);
     CollectResult c = resolveCollect(w, BASE_BET_FIXED_COINS);
+    emitCapturedTrace("test_core TC-BASE-001", cap);
     require(b.symbol_hits[HV1] == 1, "TC-BASE-001 HV1 stops before reel 2");
     require(b.symbol_hits[LV2] == 1, "TC-BASE-001 LV2 stops before reel 2");
     require(b.ways_win == 0, "TC-BASE-001 ways_win");
@@ -59,6 +83,7 @@ static void testStandard2OakWaysWin() {
     });
     CoutCapture cap;
     WinBreakdown b = waysWinCalculation(w);
+    emitCapturedTrace("test_core TC-BASE-002", cap);
     require(b.symbol_hits[HV1] == 2, "TC-BASE-002 HV1 kind");
     require(b.ways_win == 20, "TC-BASE-002 ways_win");
 }
@@ -73,6 +98,7 @@ static void testWildSubstitutionWaysWin() {
     });
     CoutCapture cap;
     WinBreakdown b = waysWinCalculation(w);
+    emitCapturedTrace("test_core TC-BASE-003", cap);
     require(b.symbol_hits[HV1] == 3, "TC-BASE-003 HV1 kind");
     require(b.ways_win == 60, "TC-BASE-003 ways_win");
 }
@@ -87,6 +113,7 @@ static void testBaseScatterAnywhereFeatureTrigger() {
     });
     CoutCapture cap;
     WinBreakdown b = waysWinCalculation(w);
+    emitCapturedTrace("test_core TC-BASE-004", cap);
     require(b.scatter_count == 3, "TC-BASE-004 scatter_count");
     require(b.scatter_win == 20, "TC-BASE-004 scatter_win");
     require(freeSpinAward(b.scatter_count) == 8, "TC-BASE-004 free spin award");
@@ -105,6 +132,7 @@ static void testSingleCollect() {
     setForcedCorValue(2, 3, 10);
     CoutCapture cap;
     CollectResult c = resolveCollect(w, BASE_BET_FIXED_COINS);
+    emitCapturedTrace("test_core TC-BASE-005", cap);
     require(c.collect_count == 1, "TC-BASE-005 collect_count");
     require(c.cor_value_x_bet_sum == 12, "TC-BASE-005 cor sum");
     require(c.collect_win == 240, "TC-BASE-005 collect_win");
@@ -122,6 +150,7 @@ static void testTwoCollects() {
     setForcedCorValue(2, 3, 5);
     CoutCapture cap;
     CollectResult c = resolveCollect(w, BASE_BET_FIXED_COINS);
+    emitCapturedTrace("test_core TC-BASE-006", cap);
     require(c.collect_count == 2, "TC-BASE-006 collect_count");
     require(c.collect_win == 280, "TC-BASE-006 collect_win");
 }
@@ -138,6 +167,7 @@ static void testFreeSpinsWildMultiplierProduct() {
     setForcedWildMultiplier(0, 3, 3);
     CoutCapture cap;
     WinBreakdown b = waysWinCalculationWithMultiplier(w);
+    emitCapturedTrace("test_core TC-FS-001", cap);
     require(b.ways_win == 120, "TC-FS-001 multiplied ways_win");
     require(b.scatter_win == 0, "TC-FS-001 scatter unaffected");
 }
@@ -152,6 +182,7 @@ static void testFreeSpinsRetriggerWith2Scat() {
     });
     CoutCapture cap;
     WinBreakdown b = waysWinCalculationWithMultiplier(w);
+    emitCapturedTrace("test_core TC-FS-002", cap);
     require(b.scatter_count == 2, "TC-FS-002 scatter_count");
     require(freeSpinRetriggerAward(b.scatter_count) == 5, "TC-FS-002 retrigger award");
     require(b.scatter_win == 0, "TC-FS-002 scatter_win");
@@ -178,6 +209,7 @@ static void testBlitzCollect() {
     }
     CoutCapture cap;
     CollectResult c = resolveCollect(w, BASE_BET_FIXED_COINS);
+    emitCapturedTrace("test_core TC-BLITZ-001", cap);
     require(c.collect_count == 2, "TC-BLITZ-001 collect_count");
     require(c.cor_value_x_bet_sum == 64, "TC-BLITZ-001 cor total");
     require(c.collect_win == 2560, "TC-BLITZ-001 collect_win");
@@ -195,6 +227,7 @@ static void testAdditionalCorEligibility() {
     setForcedWeightedIndexes({0, 4, 0, 0, 0, 0, 0});
     CoutCapture cap;
     PayWindow out = additionalCOR(w, rng);
+    emitCapturedTrace("test_core TC-BASE-007", cap);
     require(out[0][0] == COLLECT, "TC-BASE-007 preserve COLLECT");
     require(out[0][1] == WILD, "TC-BASE-007 preserve WILD");
     require(out[0][2] == SCAT, "TC-BASE-007 preserve SCAT");
@@ -209,6 +242,7 @@ static void testGeneratePayWindowForcedStops() {
     setForcedStops({0, 0, 0, 0, 0, 0});
     CoutCapture cap;
     PayWindow w = generatePayWindow(BG2_Reels, BG2_ReelSize, rng);
+    emitCapturedTrace("test_core generatePayWindow forced stops", cap);
     require(w.size() == 4 && w[0].size() == 6, "generatePayWindow shape");
     require(w[0][0] == BG2_Reels[0][0], "generatePayWindow forced stop reel 1");
     require(w[3][5] == BG2_Reels[5][3], "generatePayWindow forced stop wrap/window");
@@ -225,6 +259,7 @@ static void testTraceShape() {
     CoutCapture cap;
     (void)waysWinCalculation(w);
     std::string t = cap.str();
+    emitCapturedTrace("test_core trace shape", cap);
     require(t.find("->waysWinCalculation") != std::string::npos, "trace enter waysWinCalculation");
     require(t.find("input pay_window") != std::string::npos, "trace input pay_window");
     require(t.find("shape:[4x6]") != std::string::npos, "trace pay_window shape");

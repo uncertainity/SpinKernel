@@ -1,4 +1,5 @@
 #include <functional>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -12,9 +13,32 @@ struct CoutCapture {
     std::streambuf* old = nullptr;
     std::ostringstream ss;
     CoutCapture() : old(std::cout.rdbuf(ss.rdbuf())) {}
-    ~CoutCapture() { std::cout.rdbuf(old); }
+    ~CoutCapture() { restore(); }
+    void restore() {
+        if (old != nullptr) {
+            std::cout.rdbuf(old);
+            old = nullptr;
+        }
+    }
     std::string str() const { return ss.str(); }
 };
+
+static const char* STACK_TRACE_PATH = "generation/tests/stack_traces.txt";
+
+static void emitCapturedTrace(const std::string& label, CoutCapture& cap) {
+    const std::string trace = cap.str();
+    cap.restore();
+    if (trace.empty()) return;
+
+    std::ostringstream section;
+    section << "===== " << label << " =====\n" << trace;
+    if (!trace.empty() && trace.back() != '\n') section << "\n";
+    section << "\n";
+
+    std::cerr << section.str();
+    std::ofstream out(STACK_TRACE_PATH, std::ios::app);
+    out << section.str();
+}
 
 struct CaseResult {
     std::string id;
@@ -117,10 +141,9 @@ static CaseResult runCase(const std::string& id, const std::string& category, co
     CaseResult result;
     result.id = id;
     result.category = category;
+    CoutCapture capture;
     try {
-        CoutCapture capture;
         result.observed_json = fn();
-        (void)capture.str();
     } catch (const std::exception& ex) {
         result.status = "ERROR";
         result.observed_json = "{}";
@@ -130,6 +153,7 @@ static CaseResult runCase(const std::string& id, const std::string& category, co
         result.observed_json = "{}";
         result.errors.push_back("unknown exception");
     }
+    emitCapturedTrace("forced_window " + id, capture);
     return result;
 }
 

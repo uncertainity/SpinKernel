@@ -13,6 +13,7 @@ Test Augmenter stage complete. Deterministic edge cases were generated, the forc
 - Coder: generated baseline C++ implementation, deterministic test harness, run commands, and Coder report from `generation/baseline/coder_contract.md`; compilation passed, but oracle tests exposed blocker conflicts with contract ways evaluation.
 - Coder escalation resolution: treated `generation/baseline/coder_contract.md` as authoritative for all-standard-symbol ways evaluation and WILD substitution; revised conflicting deterministic oracle windows to match the contract while preserving each case's intended coverage.
 - Test Augmenter: generated edge-case forced windows, generated `generation/tests/run_forced_window.cpp`, compiled and executed it, captured `validation/oracle/edge_results.json`, updated `validation/oracle/edge_cases.txt` with observed core outputs, and wrote structural/invariant audits.
+- Trace artifact update: modified the Coder and forced-window test harnesses to print captured machine-verifiable stack traces and append them to `generation/tests/stack_traces.txt` without changing simulator/core logic.
 
 ## Pending Stages
 
@@ -43,6 +44,7 @@ Test Augmenter stage complete. Deterministic edge cases were generated, the forc
 - `skills/test_augmenter.md` named `generation/baseline/code_contract.md`, but the repository contains `generation/baseline/coder_contract.md`; used `coder_contract.md` as the canonical implementation contract based on prior summary state.
 - Test Augmenter did not modify `generation/baseline/core.cpp` or `generation/tests/test_core.cpp`.
 - Edge-case observed payout and feature values were copied only from forced-window runner execution against `core.cpp`.
+- `generation/tests/test_core.cpp` and `generation/tests/run_forced_window.cpp` now restore captured `std::cout` traces, print them to `stderr`, and append labeled sections to `generation/tests/stack_traces.txt`; forced-window JSON remains on `stdout`.
 
 ## Known Missing Inputs
 
@@ -71,6 +73,8 @@ Test Augmenter stage complete. Deterministic edge cases were generated, the forc
 - `generation/tests/test_core.cpp` was refreshed against the revised oracle windows for `TC-BASE-001`, `TC-BASE-003`, and `TC-FS-001`.
 - Refreshed Coder test harness compiled with `g++ -std=c++17 -O0 -g ./generation/tests/test_core.cpp -o ./generation/tests/test_core`.
 - Refreshed Coder test harness execution passed with `All coder tests passed`.
+- Stack trace harness update compiled successfully for both `generation/tests/test_core.cpp` and `generation/tests/run_forced_window.cpp`.
+- Final trace verification run passed: `test_core` returned `All coder tests passed`, forced-window stdout parsed as valid JSON, and `generation/tests/stack_traces.txt` contains 247 lines of labeled contract traces.
 
 ## Generated Artifacts
 
@@ -88,6 +92,7 @@ Test Augmenter stage complete. Deterministic edge cases were generated, the forc
 - `generation/run_commands.txt`
 - `generation/reports/coder_report.md`
 - `generation/tests/run_forced_window.cpp`
+- `generation/tests/stack_traces.txt`
 - `validation/oracle/edge_cases.txt`
 - `validation/oracle/edge_results.json`
 - `validation/reports/test_augmenter_report.md`

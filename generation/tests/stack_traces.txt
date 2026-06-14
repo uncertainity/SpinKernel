@@ -1,0 +1,247 @@
+===== test_core TC-BASE-001 =====
+->waysWinCalculation
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  Global/Struct STANDARD_SYMBOL_COUNT: int shape:[1]
+  output win: int shape:[1]
+<- waysWinCalculation
+->resolveCollect
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  input bet_fixed_coins: int shape:[1]
+  Global/Struct probTable.CORValues: std::vector<double, std::allocator<double> > shape:[22]
+  output CollectResult: CollectResult shape:[1]
+<- resolveCollect
+
+===== test_core TC-BASE-002 =====
+->waysWinCalculation
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  Global/Struct STANDARD_SYMBOL_COUNT: int shape:[1]
+  output win: int shape:[1]
+<- waysWinCalculation
+
+===== test_core TC-BASE-003 =====
+->waysWinCalculation
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  Global/Struct STANDARD_SYMBOL_COUNT: int shape:[1]
+  output win: int shape:[1]
+<- waysWinCalculation
+
+===== test_core TC-BASE-004 =====
+->waysWinCalculation
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  Global/Struct STANDARD_SYMBOL_COUNT: int shape:[1]
+  output win: int shape:[1]
+<- waysWinCalculation
+
+===== test_core TC-BASE-005 =====
+->resolveCollect
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  input bet_fixed_coins: int shape:[1]
+  Global/Struct probTable.CORValues: std::vector<double, std::allocator<double> > shape:[22]
+  output CollectResult: CollectResult shape:[1]
+<- resolveCollect
+
+===== test_core TC-BASE-006 =====
+->resolveCollect
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  input bet_fixed_coins: int shape:[1]
+  Global/Struct probTable.CORValues: std::vector<double, std::allocator<double> > shape:[22]
+  output CollectResult: CollectResult shape:[1]
+<- resolveCollect
+
+===== test_core TC-FS-001 =====
+->waysWinCalculationWithMultiplier
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct probTable.wildMult: std::vector<int, std::allocator<int> > shape:[3]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  output session_win: int shape:[1]
+<- waysWinCalculationWithMultiplier
+
+===== test_core TC-FS-002 =====
+->waysWinCalculationWithMultiplier
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct probTable.wildMult: std::vector<int, std::allocator<int> > shape:[3]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  output session_win: int shape:[1]
+<- waysWinCalculationWithMultiplier
+
+===== test_core TC-BLITZ-001 =====
+->resolveCollect
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  input bet_fixed_coins: int shape:[1]
+  Global/Struct probTable.CORValues: std::vector<double, std::allocator<double> > shape:[22]
+  output CollectResult: CollectResult shape:[1]
+<- resolveCollect
+
+===== test_core TC-BASE-007 =====
+->additionalCOR
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct probTable.corTrigger: std::vector<int, std::allocator<int> > shape:[2]
+  Global/Struct probTable.numCorWeight: std::vector<int, std::allocator<int> > shape:[5]
+  Global/Struct probTable.baseCORValueWeights.values: std::vector<double, std::allocator<double> > shape:[22]
+  Global/Struct probTable.baseCORValueWeights.weights: std::vector<int, std::allocator<int> > shape:[22]
+  output pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+<- additionalCOR
+
+===== test_core generatePayWindow forced stops =====
+->generatePayWindow
+  input ReelSet: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[6x26]
+  input ReelSize: std::vector<int, std::allocator<int> > shape:[6]
+  Global/Struct NO_OF_ROWS: int shape:[1]
+  Global/Struct NO_OF_REELS: int shape:[1]
+  output pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+<- generatePayWindow
+
+===== test_core trace shape =====
+->waysWinCalculation
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  Global/Struct STANDARD_SYMBOL_COUNT: int shape:[1]
+  output win: int shape:[1]
+<- waysWinCalculation
+
+===== forced_window CASE_EDGE_001 =====
+->waysWinCalculation
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  Global/Struct STANDARD_SYMBOL_COUNT: int shape:[1]
+  output win: int shape:[1]
+<- waysWinCalculation
+
+===== forced_window CASE_EDGE_002 =====
+->waysWinCalculation
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  Global/Struct STANDARD_SYMBOL_COUNT: int shape:[1]
+  output win: int shape:[1]
+<- waysWinCalculation
+
+===== forced_window CASE_EDGE_003 =====
+->waysWinCalculationWithMultiplier
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct probTable.wildMult: std::vector<int, std::allocator<int> > shape:[3]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  output session_win: int shape:[1]
+<- waysWinCalculationWithMultiplier
+->waysWinCalculationWithMultiplier
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct probTable.wildMult: std::vector<int, std::allocator<int> > shape:[3]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  output session_win: int shape:[1]
+<- waysWinCalculationWithMultiplier
+
+===== forced_window CASE_EDGE_004 =====
+->waysWinCalculationWithMultiplier
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct probTable.wildMult: std::vector<int, std::allocator<int> > shape:[3]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  output session_win: int shape:[1]
+<- waysWinCalculationWithMultiplier
+->waysWinCalculationWithMultiplier
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct probTable.wildMult: std::vector<int, std::allocator<int> > shape:[3]
+  Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+  output session_win: int shape:[1]
+<- waysWinCalculationWithMultiplier
+
+===== forced_window CASE_EDGE_005 =====
+->resolveCollect
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  input bet_fixed_coins: int shape:[1]
+  Global/Struct probTable.CORValues: std::vector<double, std::allocator<double> > shape:[22]
+  output CollectResult: CollectResult shape:[1]
+<- resolveCollect
+
+===== forced_window CASE_EDGE_006 =====
+->additionalCOR
+  input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  Global/Struct probTable.corTrigger: std::vector<int, std::allocator<int> > shape:[2]
+  Global/Struct probTable.numCorWeight: std::vector<int, std::allocator<int> > shape:[5]
+  Global/Struct probTable.baseCORValueWeights.values: std::vector<double, std::allocator<double> > shape:[22]
+  Global/Struct probTable.baseCORValueWeights.weights: std::vector<int, std::allocator<int> > shape:[22]
+  output pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+<- additionalCOR
+
+===== forced_window CASE_EDGE_007 =====
+->generatePayWindow
+  input ReelSet: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[6x26]
+  input ReelSize: std::vector<int, std::allocator<int> > shape:[6]
+  Global/Struct NO_OF_ROWS: int shape:[1]
+  Global/Struct NO_OF_REELS: int shape:[1]
+  output pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+<- generatePayWindow
+
+===== forced_window CASE_EDGE_008 =====
+->runOneSpin
+  input bet_fixed_coins: int shape:[1]
+  input feature_choice: FeatureChoice shape:[1]
+  Global/Struct probTable.ReelsetWeights: std::vector<int, std::allocator<int> > shape:[2]
+  ->generatePayWindow
+    input ReelSet: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[6x26]
+    input ReelSize: std::vector<int, std::allocator<int> > shape:[6]
+    Global/Struct NO_OF_ROWS: int shape:[1]
+    Global/Struct NO_OF_REELS: int shape:[1]
+    output pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  <- generatePayWindow
+  ->additionalCOR
+    input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+    Global/Struct probTable.corTrigger: std::vector<int, std::allocator<int> > shape:[2]
+    Global/Struct probTable.numCorWeight: std::vector<int, std::allocator<int> > shape:[5]
+    Global/Struct probTable.baseCORValueWeights.values: std::vector<double, std::allocator<double> > shape:[22]
+    Global/Struct probTable.baseCORValueWeights.weights: std::vector<int, std::allocator<int> > shape:[22]
+    output pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  <- additionalCOR
+  ->waysWinCalculation
+    input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+    Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+    Global/Struct STANDARD_SYMBOL_COUNT: int shape:[1]
+    output win: int shape:[1]
+  <- waysWinCalculation
+  ->resolveCollect
+    input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+    input bet_fixed_coins: int shape:[1]
+    Global/Struct probTable.CORValues: std::vector<double, std::allocator<double> > shape:[22]
+    output CollectResult: CollectResult shape:[1]
+  <- resolveCollect
+  output SpinResult.total_win: int shape:[1]
+<- runOneSpin
+
+===== forced_window CASE_EDGE_009 =====
+->FreeGameFeature_1
+  input num_of_free_spins: int shape:[1]
+  ->generatePayWindow
+    input ReelSet: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[6x144]
+    input ReelSize: std::vector<int, std::allocator<int> > shape:[6]
+    Global/Struct NO_OF_ROWS: int shape:[1]
+    Global/Struct NO_OF_REELS: int shape:[1]
+    output pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+  <- generatePayWindow
+  ->waysWinCalculationWithMultiplier
+    input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+    Global/Struct probTable.wildMult: std::vector<int, std::allocator<int> > shape:[3]
+    Global/Struct PayTable: std::array<std::array<int, 7ul>, 12ul> shape:[12x7]
+    output session_win: int shape:[1]
+  <- waysWinCalculationWithMultiplier
+  output FeatureResult.session_win: int shape:[1]
+<- FreeGameFeature_1
+
+===== forced_window CASE_EDGE_010 =====
+->FreeGameFeature_2
+  input num_of_blitz_spins: int shape:[1]
+  Global/Struct probTable.freeGamenumCollect: std::vector<int, std::allocator<int> > shape:[2]
+  Global/Struct probTable.freeGameCOROccur: std::vector<int, std::allocator<int> > shape:[2]
+  Global/Struct probTable.goodCORTable: std::vector<int, std::allocator<int> > shape:[22]
+  Global/Struct probTable.badCORTable: std::vector<int, std::allocator<int> > shape:[22]
+  Global/Struct probTable.CORValues: std::vector<double, std::allocator<double> > shape:[22]
+  ->resolveCollect
+    input pay_window: std::vector<std::vector<Symbol, std::allocator<Symbol> >, std::allocator<std::vector<Symbol, std::allocator<Symbol> > > > shape:[4x6]
+    input bet_fixed_coins: int shape:[1]
+    Global/Struct probTable.CORValues: std::vector<double, std::allocator<double> > shape:[22]
+    output CollectResult: CollectResult shape:[1]
+  <- resolveCollect
+  output FeatureResult.session_win: int shape:[1]
+<- FreeGameFeature_2
+
